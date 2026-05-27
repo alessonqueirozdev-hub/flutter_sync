@@ -31,7 +31,7 @@ The package is delivered across 18 numbered phases. Each phase lives on its own 
 - [x] Phase 2 — Hybrid Logical Clock and core engine internals
 - [x] Phase 3 — CRDTs (GCounter, PNCounter, TwoPhaseSet, LWWSet, LWWMap, SyncText)
 - [x] Phase 4 — Conflict resolvers (LWW, ServerWins, ClientWins, CRDT, FieldLevel)
-- [ ] Phase 5 — Persistent outbox with exponential-backoff retry
+- [x] Phase 5 — Persistent outbox with exponential-backoff retry
 - [ ] Phase 6 — Local store (Drift and Hive implementations)
 - [ ] Phase 7 — Connectivity and bandwidth awareness
 - [ ] Phase 8 — Scheduler and per-platform background sync
@@ -140,6 +140,15 @@ FlutterSync ships five built-in resolvers, plus a per-field combinator. Each is 
 | `FieldLevelResolver` | Each field is resolved with its own configured strategy (LWW, ServerWins, ClientWins, or a custom merger). |
 
 Custom resolvers implement `ConflictResolver` directly and may compose the built-ins as needed.
+
+## Outbox and delivery guarantees
+
+Every write that the engine reports as successful is durably stored in the **outbox** before the call returns. The outbox is what guarantees that an offline write reaches the server eventually — without it, an app kill or a reboot would silently lose the queued writes.
+
+- `OutboxEntry` carries the record, the operation (`upsert` or `delete`), retry bookkeeping, and a SHA-256 **idempotency key** (`sha256(collection + ':' + id + ':' + hlc)`). The server uses the key to safely deduplicate retries.
+- `ExponentialBackoffRetryStrategy` computes the delay before the next attempt: `min(baseDelay * 2^attempts + jitter, maxDelay)`, with defaults of `baseDelay = 1 s`, `maxDelay = 5 min`, `maxAttempts = 20`. A `ConstantRetryStrategy` is shipped for tests.
+- `OutboxQueue` is the durable interface (in-memory implementation ships today; the Drift-backed variant lands in Phase 6).
+- `OutboxProcessor` drains the queue by batching due entries per collection, calling `SyncAdapter.push`, and translating the result into entry status updates — succeeded entries are TTL-evicted, transient failures are rescheduled with backoff, permanent failures are dead-lettered and surfaced via an `onFailure` callback.
 
 ## Documentation
 
