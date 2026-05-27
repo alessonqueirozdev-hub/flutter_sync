@@ -27,8 +27,8 @@ Background sync is implemented natively on every platform listed above (WorkMana
 The package is delivered across 18 numbered phases. Each phase lives on its own branch and lands via a pull request to `develop`.
 
 - [x] Phase 0 — Git and GitHub setup
-- [ ] Phase 1 — Foundation models and interfaces
-- [ ] Phase 2 — Hybrid Logical Clock and core engine internals
+- [x] Phase 1 — Foundation models and interfaces
+- [x] Phase 2 — Hybrid Logical Clock and core engine internals
 - [ ] Phase 3 — CRDTs (GCounter, PNCounter, TwoPhaseSet, LWWSet, LWWMap, SyncText)
 - [ ] Phase 4 — Conflict resolvers (LWW, ServerWins, ClientWins, CRDT, FieldLevel)
 - [ ] Phase 5 — Persistent outbox with exponential-backoff retry
@@ -95,6 +95,22 @@ Items marked WIP are not yet implemented.
 - WIP — In-app DevTools overlay with Status, Outbox, Conflicts, HLC, and Network tabs.
 
 ---
+
+## Hybrid Logical Clock (HLC)
+
+FlutterSync orders every event in the system through a Hybrid Logical Clock that follows Kulkarni et al. (2014), *"Logical Physical Clocks and Consistent Snapshots in Globally Distributed Databases."* Two devices that have never been online together can still agree on the order of any pair of events, even if their wall clocks drift by minutes or hours.
+
+A timestamp is a `(physicalTime, logicalCounter, nodeId)` triple stored in the canonical wire form `{physicalMs}-{counter}-{nodeId}` — zero-padded so that the string sorts lexicographically. The implementation lives in `lib/src/core/hlc/` and exposes:
+
+- `HLCTimestamp` — immutable value object with comparison operators and a `toWire()` / `parse()` round-trip.
+- `HybridLogicalClock` — `tick()` for local events and `receive()` for remote events, with configurable drift tolerance (default 300 s, rejected drifts surface as `HLCDriftException`).
+- `HLCNode` — interface for persisting the node identifier and the most recent clock snapshot, with an in-memory implementation suitable for tests.
+
+## Delta sync and conflict merging
+
+Pulls are incremental. Each collection carries a `lastSyncedAt` HLC watermark in `SyncMetadata`; only records strictly newer than that watermark are transferred.
+
+The `DeltaComputer` reads the local store and returns the set of records that must be pushed to the backend. The `DeltaMerger` is the symmetric counterpart: it applies an incoming batch of remote records to the local store, advancing the local HLC on every receive and routing real collisions through the active `ConflictResolver`. The `BatchProcessor` groups individual writes into bounded-size, bounded-age batches that the scheduler hands to the adapter, while the `OptimisticUpdateManager` and `RollbackHandler` keep the local store consistent if a write permanently fails.
 
 ## Documentation
 
