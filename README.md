@@ -30,7 +30,7 @@ The package is delivered across 18 numbered phases. Each phase lives on its own 
 - [x] Phase 1 — Foundation models and interfaces
 - [x] Phase 2 — Hybrid Logical Clock and core engine internals
 - [x] Phase 3 — CRDTs (GCounter, PNCounter, TwoPhaseSet, LWWSet, LWWMap, SyncText)
-- [ ] Phase 4 — Conflict resolvers (LWW, ServerWins, ClientWins, CRDT, FieldLevel)
+- [x] Phase 4 — Conflict resolvers (LWW, ServerWins, ClientWins, CRDT, FieldLevel)
 - [ ] Phase 5 — Persistent outbox with exponential-backoff retry
 - [ ] Phase 6 — Local store (Drift and Hive implementations)
 - [ ] Phase 7 — Connectivity and bandwidth awareness
@@ -126,6 +126,20 @@ FlutterSync ships six Conflict-free Replicated Data Types in `lib/src/crdt/`. Ev
 | `SyncText` | Collaborative text editing via a Logoot-based position model. |
 
 Each type round-trips through `toJson` / `fromJson` so it can be serialized into a `SyncRecord` payload and synced like any other field.
+
+## Conflict resolution
+
+FlutterSync ships five built-in resolvers, plus a per-field combinator. Each is a thin implementation of the `ConflictResolver` interface and can be swapped at the global level (in `FlutterSync.configure`) or per repository (via `flutterSync.repository<T>(..., conflictResolver: ...)`).
+
+| Resolver | Behavior |
+|---|---|
+| `LWWResolver` | The record with the strictly greater HLC wins. |
+| `ServerWinsResolver` | The remote (server-issued) record always wins. |
+| `ClientWinsResolver` | The local (device-issued) record always wins. |
+| `CRDTResolver` | Each field listed in `mergers` is merged through a `CRDTFieldMerger`; other fields fall back to LWW. |
+| `FieldLevelResolver` | Each field is resolved with its own configured strategy (LWW, ServerWins, ClientWins, or a custom merger). |
+
+Custom resolvers implement `ConflictResolver` directly and may compose the built-ins as needed.
 
 ## Documentation
 
