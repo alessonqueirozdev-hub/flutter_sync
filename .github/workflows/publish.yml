@@ -1,0 +1,49 @@
+name: Publish
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run pub publish in dry-run mode only.'
+        required: false
+        default: 'true'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish:
+    name: Publish to pub.dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Run static analyzer
+        run: dart analyze --fatal-infos --fatal-warnings
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Publish dry-run
+        run: dart pub publish --dry-run
+
+      - name: Publish to pub.dev
+        if: ${{ github.event_name == 'release' || github.event.inputs.dry_run == 'false' }}
+        uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
