@@ -29,7 +29,7 @@ The package is delivered across 18 numbered phases. Each phase lives on its own 
 - [x] Phase 0 — Git and GitHub setup
 - [x] Phase 1 — Foundation models and interfaces
 - [x] Phase 2 — Hybrid Logical Clock and core engine internals
-- [ ] Phase 3 — CRDTs (GCounter, PNCounter, TwoPhaseSet, LWWSet, LWWMap, SyncText)
+- [x] Phase 3 — CRDTs (GCounter, PNCounter, TwoPhaseSet, LWWSet, LWWMap, SyncText)
 - [ ] Phase 4 — Conflict resolvers (LWW, ServerWins, ClientWins, CRDT, FieldLevel)
 - [ ] Phase 5 — Persistent outbox with exponential-backoff retry
 - [ ] Phase 6 — Local store (Drift and Hive implementations)
@@ -111,6 +111,21 @@ A timestamp is a `(physicalTime, logicalCounter, nodeId)` triple stored in the c
 Pulls are incremental. Each collection carries a `lastSyncedAt` HLC watermark in `SyncMetadata`; only records strictly newer than that watermark are transferred.
 
 The `DeltaComputer` reads the local store and returns the set of records that must be pushed to the backend. The `DeltaMerger` is the symmetric counterpart: it applies an incoming batch of remote records to the local store, advancing the local HLC on every receive and routing real collisions through the active `ConflictResolver`. The `BatchProcessor` groups individual writes into bounded-size, bounded-age batches that the scheduler hands to the adapter, while the `OptimisticUpdateManager` and `RollbackHandler` keep the local store consistent if a write permanently fails.
+
+## CRDTs
+
+FlutterSync ships six Conflict-free Replicated Data Types in `lib/src/crdt/`. Every type is proven associative, commutative, and idempotent (Phase 15 enforces this with property-based tests).
+
+| Type | When to use it |
+|---|---|
+| `GCounter` | Monotonically-increasing counters (page views, likes, downloads). |
+| `PNCounter` | Counters that need to support both increment and decrement (votes, balances). |
+| `TwoPhaseSet<T>` | Sets where a removed element must stay removed (audit-style logs). |
+| `LWWSet<T>` | Sets where removal can be undone by a fresher add (tags, labels). |
+| `LWWMap<K, V>` | Key/value collections where each key's latest write wins by HLC. |
+| `SyncText` | Collaborative text editing via a Logoot-based position model. |
+
+Each type round-trips through `toJson` / `fromJson` so it can be serialized into a `SyncRecord` payload and synced like any other field.
 
 ## Documentation
 
