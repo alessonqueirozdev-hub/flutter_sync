@@ -62,8 +62,14 @@ class ConnectivityObserver {
     }
     _controller.add(_current);
     try {
-      _upstream =
-          _connectivity.onConnectivityChanged.listen(_onConnectivityChange);
+      _upstream = _connectivity.onConnectivityChanged.listen(
+        _onConnectivityChange,
+        // Swallow stream errors that bubble up from a missing platform
+        // binding (typical in unit tests); without this the engine would
+        // crash on the first connectivity event in the test environment.
+        onError: (Object _, StackTrace __) {},
+        cancelOnError: false,
+      );
     } on Object {
       // No platform → no live updates; the observer reports `none` forever.
     }
@@ -113,7 +119,12 @@ class ConnectivityObserver {
     }
     _disposed = true;
     _debounceTimer?.cancel();
-    await _upstream?.cancel();
+    try {
+      await _upstream?.cancel();
+    } on Object {
+      // Cancelling a subscription tied to a missing platform binding can
+      // throw; the engine is shutting down anyway, so ignore.
+    }
     _upstream = null;
     await _controller.close();
   }
