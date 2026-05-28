@@ -31,7 +31,12 @@ void main() {
     expect(serverCopy.id, 't1');
     expect(serverCopy.payload['title'], 'Wash dishes');
 
-    // Inject a remote-only record and pull it.
+    // Inject a remote-only record and pull it. The HLC must be later than
+    // t1's (so the watermark filter accepts it) but within the engine's
+    // drift tolerance (so `HybridLogicalClock.receive` does not throw),
+    // so we derive it from the current wall clock plus a few seconds.
+    final int futureMs =
+        DateTime.now().toUtc().millisecondsSinceEpoch + 5000;
     adapter.stored['todos/t2'] = SyncRecord(
       id: 't2',
       collection: 'todos',
@@ -40,15 +45,13 @@ void main() {
         'title': 'Take out trash',
         'done': false,
       },
-      // Use a far-future physical time so the watermark filter never
-      // discards this remote record regardless of when the test runs.
-      hlc: const HLCTimestamp(
-        physicalTime: 9999999999999,
+      hlc: HLCTimestamp(
+        physicalTime: futureMs,
         logicalCounter: 0,
         nodeId: 'remote',
       ).toWire(),
-      createdAt: DateTime.utc(2026, 1, 1, 13),
-      updatedAt: DateTime.utc(2026, 1, 1, 13),
+      createdAt: DateTime.now().toUtc(),
+      updatedAt: DateTime.now().toUtc(),
     );
     await sync.syncNow();
     final List<_Todo> all = await repo.findAll();
