@@ -1,4 +1,4 @@
-<!-- Title format: "Phase NN — Short title" or "<type>(<scope>): <imperative description>" -->
+<!-- Title: `<type>(<scope>): <imperative description ≤72 chars>` -->
 
 ## Summary
 
@@ -13,7 +13,7 @@
 
 ## Verification
 
-- [ ] `dart analyze` reports zero issues
+- [ ] `dart analyze --fatal-infos --fatal-warnings` reports zero issues
 - [ ] `dart format --output=none --set-exit-if-changed .` passes
 - [ ] All tests pass (`flutter test`)
 - [ ] No TODOs, FIXMEs, XXX, or HACK markers introduced
@@ -24,15 +24,12 @@
 - [ ] Every `Isolate.run` block has a justification comment
 - [ ] Commit messages follow `[NNN] type(scope): imperative description` (≤72 chars)
 - [ ] Coverage targets respected (overall ≥80%, HLC and CRDTs 100%, core ≥95%, conflict ≥100%)
-
-## Phase information
-
-<!-- For phase PRs only. Delete this section for non-phase work. -->
-
-- Phase number:
-- Commit range: `[NNN-start]` through `[NNN-end]`
-- Branch: `feat/phase-NN-<name>`
+- [ ] Public-API changes also update `lib/flutter_sync.dart`, the relevant README section, and `CHANGELOG.md`
 
 ## Notes
 
 <!-- Optional. Design decisions worth recording, follow-up tasks, links to external context. -->
+
+---
+
+By submitting this pull request I confirm my contribution is offered under the terms of the [Apache 2.0 License](../LICENSE).
