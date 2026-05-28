@@ -22,7 +22,6 @@ class DesktopBackgroundSync implements BackgroundSync {
   DesktopBackgroundSync();
 
   Timer? _timer;
-  BackgroundSyncCallback? _callback;
 
   @override
   bool get isSupported => true;
@@ -33,7 +32,6 @@ class DesktopBackgroundSync implements BackgroundSync {
     required BackgroundSyncCallback onSync,
   }) async {
     await cancel();
-    _callback = onSync;
     _timer = Timer.periodic(config.interval, (_) async {
       try {
         await onSync();
@@ -48,6 +46,5 @@ class DesktopBackgroundSync implements BackgroundSync {
   Future<void> cancel() async {
     _timer?.cancel();
     _timer = null;
-    _callback = null;
   }
 }
