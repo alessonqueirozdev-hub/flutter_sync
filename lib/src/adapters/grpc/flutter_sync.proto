@@ -1,0 +1,72 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 The FlutterSync Authors. All rights reserved.
+
+syntax = "proto3";
+
+package flutter_sync.v1;
+
+// Service definition consumed by `GrpcSyncAdapter`.
+//
+// The schema mirrors the FlutterSync wire model in `lib/src/models/`.
+// Servers implementing this service can be written in any language gRPC
+// supports; the canonical reference implementation lives in the
+// `doc/grpc_reference_server` directory.
+service SyncService {
+  // Pushes a batch of records to the server. The server uses
+  // `idempotency_key` to safely deduplicate retries.
+  rpc Push(PushRequest) returns (PushResponse);
+
+  // Returns records changed since `since` (HLC wire format). Pagination is
+  // driven by `cursor` / `next_cursor`.
+  rpc Pull(PullRequest) returns (PullResponse);
+
+  // Streams real-time updates for `collection` from the server.
+  rpc Watch(WatchRequest) returns (stream WatchEvent);
+}
+
+message Record {
+  string id            = 1;
+  string collection    = 2;
+  string payload_json  = 3;
+  string hlc           = 4;
+  int64  created_at_ms = 5;
+  int64  updated_at_ms = 6;
+  bool   is_deleted    = 7;
+}
+
+message PushRequest {
+  string         collection       = 1;
+  repeated Record records         = 2;
+  repeated string idempotency_keys = 3;
+}
+
+message PushResponse {
+  int32           pushed       = 1;
+  repeated string rejected_ids = 2;
+  string          server_cursor = 3;
+}
+
+message PullRequest {
+  string collection      = 1;
+  string since           = 2;
+  int32  page_size       = 3;
+  string cursor          = 4;
+  bool   include_deleted = 5;
+}
+
+message PullResponse {
+  repeated Record records        = 1;
+  string          high_water_hlc = 2;
+  bool            has_more       = 3;
+  string          next_cursor    = 4;
+}
+
+message WatchRequest {
+  string collection = 1;
+  string since      = 2;
+}
+
+message WatchEvent {
+  Record record       = 1;
+  string event_source = 2;
+}
