@@ -48,16 +48,16 @@ void main() {
 class _Todo implements SyncModel {
   _Todo({required this.id, required this.title, this.done = false});
 
-  @override
-  final String id;
-  final String title;
-  final bool done;
-
   factory _Todo.fromJson(Map<String, dynamic> json) => _Todo(
         id: json['id']! as String,
         title: json['title']! as String,
         done: (json['done'] as bool?) ?? false,
       );
+
+  @override
+  final String id;
+  final String title;
+  final bool done;
 
   static Map<String, dynamic> toJsonStatic(_Todo t) => t.toJson();
 

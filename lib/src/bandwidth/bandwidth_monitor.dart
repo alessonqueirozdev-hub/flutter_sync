@@ -4,6 +4,10 @@
 import 'dart:collection';
 import 'dart:math' as math;
 
+import 'package:flutter_sync/flutter_sync.dart' show SyncSchedulerConfig;
+
+import 'package:flutter_sync/src/scheduler/sync_scheduler.dart' show SyncSchedulerConfig;
+
 import '../models/network_state.dart';
 
 /// Single completed push measurement consumed by [BandwidthMonitor].

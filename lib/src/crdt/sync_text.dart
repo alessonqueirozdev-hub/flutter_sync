@@ -49,10 +49,31 @@ class LogootPosition implements Comparable<LogootPosition> {
   LogootPosition(List<LogootAtom> atoms)
       : atoms = List<LogootAtom>.unmodifiable(atoms);
 
+  const LogootPosition._const(this.atoms);
+
+  /// Reconstructs a position from its [LogootPosition.toWire] form.
+  factory LogootPosition.parse(String wire) {
+    if (wire.isEmpty) {
+      return LogootPosition.empty;
+    }
+    final List<LogootAtom> atoms = <LogootAtom>[];
+    for (final String segment in wire.split('.')) {
+      final int colon = segment.indexOf(':');
+      if (colon <= 0) {
+        throw FormatException('Invalid Logoot atom: $segment');
+      }
+      final int? digit = int.tryParse(segment.substring(0, colon));
+      final String siteId = segment.substring(colon + 1);
+      if (digit == null || siteId.isEmpty) {
+        throw FormatException('Invalid Logoot atom: $segment');
+      }
+      atoms.add(LogootAtom(digit, siteId));
+    }
+    return LogootPosition(atoms);
+  }
+
   /// The empty position, used as the lower bound when inserting at index 0.
   static const LogootPosition empty = LogootPosition._const(<LogootAtom>[]);
-
-  const LogootPosition._const(this.atoms);
 
   /// Sequence of atoms that make up this position.
   final List<LogootAtom> atoms;
@@ -76,27 +97,6 @@ class LogootPosition implements Comparable<LogootPosition> {
   /// atom serialized as `digit:siteId`.
   String toWire() =>
       atoms.map((LogootAtom a) => '${a.digit}:${a.siteId}').join('.');
-
-  /// Reconstructs a position from its [LogootPosition.toWire] form.
-  factory LogootPosition.parse(String wire) {
-    if (wire.isEmpty) {
-      return LogootPosition.empty;
-    }
-    final List<LogootAtom> atoms = <LogootAtom>[];
-    for (final String segment in wire.split('.')) {
-      final int colon = segment.indexOf(':');
-      if (colon <= 0) {
-        throw FormatException('Invalid Logoot atom: $segment');
-      }
-      final int? digit = int.tryParse(segment.substring(0, colon));
-      final String siteId = segment.substring(colon + 1);
-      if (digit == null || siteId.isEmpty) {
-        throw FormatException('Invalid Logoot atom: $segment');
-      }
-      atoms.add(LogootAtom(digit, siteId));
-    }
-    return LogootPosition(atoms);
-  }
 
   @override
   bool operator ==(Object other) {
@@ -167,6 +167,32 @@ class SyncText {
   })  : _characters = List<LogootCharacter>.of(characters ?? <LogootCharacter>[]),
         _siteId = siteId ?? 'anon',
         _rng = rng ?? math.Random();
+
+  /// Reconstructs a text from a JSON-compatible map.
+  factory SyncText.fromJson(
+    Map<String, Object?> json, {
+    math.Random? rng,
+  }) {
+    final List<Object?> raw = json['characters']! as List<Object?>;
+    final List<LogootCharacter> chars = <LogootCharacter>[
+      for (final Object? rawChar in raw)
+        LogootCharacter(
+          value: (rawChar! as Map<Object?, Object?>)['value']! as String,
+          position: LogootPosition.parse(
+            (rawChar as Map<Object?, Object?>)['position']! as String,
+          ),
+        ),
+    ];
+    chars.sort(
+      (LogootCharacter a, LogootCharacter b) =>
+          a.position.compareTo(b.position),
+    );
+    return SyncText(
+      characters: chars,
+      siteId: json['site_id'] as String? ?? 'anon',
+      rng: rng,
+    );
+  }
 
   final List<LogootCharacter> _characters;
   final String _siteId;
@@ -319,32 +345,6 @@ class SyncText {
             },
         ],
       };
-
-  /// Reconstructs a text from a JSON-compatible map.
-  factory SyncText.fromJson(
-    Map<String, Object?> json, {
-    math.Random? rng,
-  }) {
-    final List<Object?> raw = json['characters']! as List<Object?>;
-    final List<LogootCharacter> chars = <LogootCharacter>[
-      for (final Object? rawChar in raw)
-        LogootCharacter(
-          value: (rawChar! as Map<Object?, Object?>)['value']! as String,
-          position: LogootPosition.parse(
-            (rawChar as Map<Object?, Object?>)['position']! as String,
-          ),
-        ),
-    ];
-    chars.sort(
-      (LogootCharacter a, LogootCharacter b) =>
-          a.position.compareTo(b.position),
-    );
-    return SyncText(
-      characters: chars,
-      siteId: json['site_id'] as String? ?? 'anon',
-      rng: rng,
-    );
-  }
 
   @override
   String toString() => 'SyncText(length: $length)';

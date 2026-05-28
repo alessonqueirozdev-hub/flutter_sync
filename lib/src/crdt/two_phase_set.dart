@@ -25,6 +25,22 @@ class TwoPhaseSet<T> {
       : added = Set<T>.unmodifiable(added ?? const <Never>{}),
         removed = Set<T>.unmodifiable(removed ?? const <Never>{});
 
+  /// Reconstructs a set from a JSON-compatible map.
+  factory TwoPhaseSet.fromJson(
+    Map<String, Object?> json, {
+    required T Function(Object?) decode,
+  }) =>
+      TwoPhaseSet<T>(
+        added: <T>{
+          for (final Object? raw in (json['added']! as List<Object?>))
+            decode(raw),
+        },
+        removed: <T>{
+          for (final Object? raw in (json['removed']! as List<Object?>))
+            decode(raw),
+        },
+      );
+
   /// Elements that have ever been added.
   final Set<T> added;
 
@@ -76,22 +92,6 @@ class TwoPhaseSet<T> {
         'added': added.toList(),
         'removed': removed.toList(),
       };
-
-  /// Reconstructs a set from a JSON-compatible map.
-  factory TwoPhaseSet.fromJson(
-    Map<String, Object?> json, {
-    required T Function(Object?) decode,
-  }) =>
-      TwoPhaseSet<T>(
-        added: <T>{
-          for (final Object? raw in (json['added']! as List<Object?>))
-            decode(raw),
-        },
-        removed: <T>{
-          for (final Object? raw in (json['removed']! as List<Object?>))
-            decode(raw),
-        },
-      );
 
   @override
   bool operator ==(Object other) {

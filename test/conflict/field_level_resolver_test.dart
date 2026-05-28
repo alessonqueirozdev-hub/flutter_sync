@@ -45,7 +45,7 @@ void main() {
         local: local,
         remote: remote,
         detectedAt: DateTime.utc(2026),
-      ));
+      ),);
       expect(winner.payload['title'], 'Remote');
       expect(
         (winner.payload['tags']! as List<Object?>).toSet(),
@@ -63,7 +63,7 @@ void main() {
 
     test('FieldStrategyConfig with merge requires a merger', () {
       expect(
-        () => const FieldStrategyConfig(strategy: FieldStrategy.merge),
+        () => FieldStrategyConfig(strategy: FieldStrategy.merge),
         throwsA(isA<AssertionError>()),
       );
     });

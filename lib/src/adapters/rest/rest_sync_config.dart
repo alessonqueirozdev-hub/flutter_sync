@@ -3,6 +3,8 @@
 
 import 'dart:async';
 
+import 'package:flutter_sync/flutter_sync.dart' show RestSyncAdapter;
+import 'package:flutter_sync/src/adapters/rest/rest_sync_adapter.dart' show RestSyncAdapter;
 import 'package:meta/meta.dart';
 
 /// Strategy used by [RestSyncAdapter] to attach authentication credentials

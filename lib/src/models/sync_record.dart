@@ -36,6 +36,23 @@ class SyncRecord {
     this.isDeleted = false,
   });
 
+  /// Reconstructs a [SyncRecord] from a JSON-compatible map.
+  factory SyncRecord.fromJson(Map<String, Object?> json) {
+    final dynamic rawPayload = json['payload'];
+    final Map<String, Object?> payload = rawPayload is Map
+        ? Map<String, Object?>.from(rawPayload as Map<Object?, Object?>)
+        : const <String, Object?>{};
+    return SyncRecord(
+      id: json['id']! as String,
+      collection: json['collection']! as String,
+      payload: payload,
+      hlc: json['hlc']! as String,
+      createdAt: DateTime.parse(json['created_at']! as String),
+      updatedAt: DateTime.parse(json['updated_at']! as String),
+      isDeleted: (json['is_deleted'] as bool?) ?? false,
+    );
+  }
+
   /// Stable, opaque identifier of the record within [collection].
   final String id;
 
@@ -106,23 +123,6 @@ class SyncRecord {
       'updated_at': updatedAt.toUtc().toIso8601String(),
       'is_deleted': isDeleted,
     };
-  }
-
-  /// Reconstructs a [SyncRecord] from a JSON-compatible map.
-  factory SyncRecord.fromJson(Map<String, Object?> json) {
-    final dynamic rawPayload = json['payload'];
-    final Map<String, Object?> payload = rawPayload is Map
-        ? Map<String, Object?>.from(rawPayload as Map<Object?, Object?>)
-        : const <String, Object?>{};
-    return SyncRecord(
-      id: json['id']! as String,
-      collection: json['collection']! as String,
-      payload: payload,
-      hlc: json['hlc']! as String,
-      createdAt: DateTime.parse(json['created_at']! as String),
-      updatedAt: DateTime.parse(json['updated_at']! as String),
-      isDeleted: (json['is_deleted'] as bool?) ?? false,
-    );
   }
 
   @override

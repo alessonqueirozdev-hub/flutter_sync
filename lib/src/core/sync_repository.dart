@@ -7,7 +7,6 @@ import 'package:meta/meta.dart';
 
 import '../adapters/sync_adapter.dart' show SyncAdapter;
 import '../audit/audit_entry.dart';
-import '../audit/audit_trail.dart';
 import '../conflict/conflict_resolver.dart';
 import '../encryption/encryption_config.dart';
 import '../encryption/record_encryptor.dart';

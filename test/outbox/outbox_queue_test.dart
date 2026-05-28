@@ -36,7 +36,7 @@ void main() {
       );
       await q.update(future.copyWith(
         nextRetryAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
-      ));
+      ),);
       final List<OutboxEntry> due = await q.dueEntries();
       expect(due.length, 1);
       expect(due.single.id, pending.id);

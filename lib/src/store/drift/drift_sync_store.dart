@@ -41,7 +41,7 @@ class DriftSyncStore implements SyncStore {
 
   @override
   Future<SyncRecord?> findById(String collection, String id) async {
-    final List<QueryRow> rows = await _database.executor
+    final List<Map<String, Object?>> rows = await _database.executor
         .runSelect(
           'SELECT * FROM sync_records WHERE collection = ? AND id = ? LIMIT 1',
           <Object?>[collection, id],
@@ -75,7 +75,7 @@ class DriftSyncStore implements SyncStore {
         sql.write(
           query.sorts
               .map((SyncQuerySort s) =>
-                  '${_jsonExtract(s.field)} ${s.direction == SyncQuerySortDirection.descending ? "DESC" : "ASC"}')
+                  '${_jsonExtract(s.field)} ${s.direction == SyncQuerySortDirection.descending ? "DESC" : "ASC"}',)
               .join(', '),
         );
       }
@@ -88,7 +88,7 @@ class DriftSyncStore implements SyncStore {
         args.add(query.offsetCount);
       }
     }
-    final List<QueryRow> rows =
+    final List<Map<String, Object?>> rows =
         await _database.executor.runSelect(sql.toString(), args);
     return rows.map(_rowToRecord).toList(growable: false);
   }
@@ -160,7 +160,7 @@ class DriftSyncStore implements SyncStore {
       downstream.add(SyncStoreEventSnapshot(
         collection: collection,
         records: snapshot,
-      ));
+      ),);
       sub = upstream.listen(
         downstream.add,
         onError: downstream.addError,
@@ -176,29 +176,29 @@ class DriftSyncStore implements SyncStore {
 
   @override
   Future<SyncMetadata> getMetadata(String collection) async {
-    final List<QueryRow> rows = await _database.executor.runSelect(
+    final List<Map<String, Object?>> rows = await _database.executor.runSelect(
       'SELECT * FROM sync_metadata WHERE collection = ? LIMIT 1',
       <Object?>[collection],
     );
     if (rows.isEmpty) {
       return SyncMetadata.empty(collection: collection, nodeId: _nodeId);
     }
-    final QueryRow row = rows.single;
+    final Map<String, Object?> row = rows.single;
     return SyncMetadata(
-      collection: row.read<String>('collection'),
-      nodeId: row.read<String>('node_id'),
-      lastSyncedAt: row.readNullable<String>('last_synced_at'),
-      recordCount: row.read<int>('record_count'),
-      pendingCount: row.read<int>('pending_count'),
-      lastSyncAttemptAt: switch (row.readNullable<int>('last_sync_attempt_at_ms')) {
+      collection: row['collection']! as String,
+      nodeId: row['node_id']! as String,
+      lastSyncedAt: row['last_synced_at'] as String?,
+      recordCount: (row['record_count'] as int?) ?? 0,
+      pendingCount: (row['pending_count'] as int?) ?? 0,
+      lastSyncAttemptAt: switch (row['last_sync_attempt_at_ms']) {
         final int ms => DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true),
         _ => null,
       },
-      lastSyncSuccessAt: switch (row.readNullable<int>('last_sync_success_at_ms')) {
+      lastSyncSuccessAt: switch (row['last_sync_success_at_ms']) {
         final int ms => DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true),
         _ => null,
       },
-      failureCount: row.read<int>('failure_count'),
+      failureCount: (row['failure_count'] as int?) ?? 0,
     );
   }
 
@@ -271,25 +271,25 @@ class DriftSyncStore implements SyncStore {
     }
   }
 
-  SyncRecord _rowToRecord(QueryRow row) {
-    final Object? rawPayload = jsonDecode(row.read<String>('payload_json'));
+  SyncRecord _rowToRecord(Map<String, Object?> row) {
+    final Object? rawPayload = jsonDecode(row['payload_json']! as String);
     final Map<String, Object?> payload = rawPayload is Map
         ? Map<String, Object?>.from(rawPayload as Map<Object?, Object?>)
         : const <String, Object?>{};
     return SyncRecord(
-      id: row.read<String>('id'),
-      collection: row.read<String>('collection'),
+      id: row['id']! as String,
+      collection: row['collection']! as String,
       payload: payload,
-      hlc: row.read<String>('hlc'),
+      hlc: row['hlc']! as String,
       createdAt: DateTime.fromMillisecondsSinceEpoch(
-        row.read<int>('created_at_ms'),
+        row['created_at_ms']! as int,
         isUtc: true,
       ),
       updatedAt: DateTime.fromMillisecondsSinceEpoch(
-        row.read<int>('updated_at_ms'),
+        row['updated_at_ms']! as int,
         isUtc: true,
       ),
-      isDeleted: row.read<int>('is_deleted') == 1,
+      isDeleted: (row['is_deleted']! as int) == 1,
     );
   }
 
@@ -392,7 +392,7 @@ class DriftSyncStore implements SyncStore {
         if (value is! Comparable<Object?> || c.value == null) {
           return false;
         }
-        final int cmp = (value as Comparable<Object?>).compareTo(c.value);
+        final int cmp = value.compareTo(c.value);
         switch (c.operator) {
           case SyncQueryOperator.lessThan:
             return cmp < 0;

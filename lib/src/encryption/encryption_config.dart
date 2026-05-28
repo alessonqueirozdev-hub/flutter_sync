@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 The FlutterSync Authors. All rights reserved.
 
+import 'package:flutter_sync/flutter_sync.dart' show KeyStore;
+import 'package:flutter_sync/src/encryption/key_store.dart' show KeyStore;
 import 'package:meta/meta.dart';
 
 /// Field names that are never encrypted because the engine needs them in

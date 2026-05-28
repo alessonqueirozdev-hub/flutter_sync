@@ -15,9 +15,6 @@ sealed class BatchResult {
   /// Internal const constructor for subclasses.
   const BatchResult();
 
-  /// The batch this result describes.
-  SyncBatch get batch;
-
   /// Creates a full-success result for [batch].
   const factory BatchResult.success(SyncBatch batch) = BatchResultSuccess;
 
@@ -41,6 +38,9 @@ sealed class BatchResult {
     required String reason,
     Object? cause,
   }) = BatchResultFailure;
+
+  /// The batch this result describes.
+  SyncBatch get batch;
 }
 
 /// Full-success variant of [BatchResult].

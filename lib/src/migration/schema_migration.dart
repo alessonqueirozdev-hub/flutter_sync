@@ -62,7 +62,7 @@ class SchemaMigration implements SyncStoreMigration {
         'Migration version $version does not support rollback.',
       );
     }
-    await _down!(store);
+    await _down(store);
   }
 
   @override

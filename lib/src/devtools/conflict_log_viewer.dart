@@ -26,6 +26,11 @@ class ConflictLogViewer extends StatefulWidget {
 
 class _ConflictLogViewerState extends State<ConflictLogViewer> {
   late Future<List<AuditEntry>> _future;
+  // The subscription is created in `initState` and cancelled in `dispose`
+  // — the standard StatefulWidget lifecycle. The lint cannot trace the
+  // creation/cancellation across method boundaries, so we suppress it
+  // explicitly here.
+  // ignore: cancel_subscriptions
   StreamSubscription<AuditEntry>? _streamSub;
 
   @override
@@ -47,7 +52,10 @@ class _ConflictLogViewerState extends State<ConflictLogViewer> {
 
   @override
   void dispose() {
-    _streamSub?.cancel();
+    final StreamSubscription<AuditEntry>? sub = _streamSub;
+    if (sub != null) {
+      unawaited(sub.cancel());
+    }
     super.dispose();
   }
 

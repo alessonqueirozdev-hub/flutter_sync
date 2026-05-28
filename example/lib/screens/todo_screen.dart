@@ -77,7 +77,7 @@ class _TodoScreenState extends State<TodoScreen> {
             child: StreamBuilder<List<Todo>>(
               stream: _repo.watchAll(),
               builder: (BuildContext context,
-                  AsyncSnapshot<List<Todo>> snapshot) {
+                  AsyncSnapshot<List<Todo>> snapshot,) {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }

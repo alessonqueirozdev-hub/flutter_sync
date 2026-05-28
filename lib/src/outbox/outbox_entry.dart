@@ -53,6 +53,32 @@ class OutboxEntry {
     this.failureReason,
   });
 
+  /// Reconstructs an entry from a JSON-compatible map.
+  factory OutboxEntry.fromJson(Map<String, Object?> json) => OutboxEntry(
+        id: json['id']! as String,
+        record: SyncRecord.fromJson(
+          Map<String, Object?>.from(json['record']! as Map<Object?, Object?>),
+        ),
+        operation: OutboxOperation.values.firstWhere(
+          (OutboxOperation op) => op.name == json['operation'],
+        ),
+        idempotencyKey: json['idempotency_key']! as String,
+        status: OutboxStatus.values.firstWhere(
+          (OutboxStatus s) => s.name == json['status'],
+        ),
+        attemptCount: (json['attempt_count'] as int?) ?? 0,
+        createdAt: DateTime.parse(json['created_at']! as String),
+        lastAttemptAt: switch (json['last_attempt_at']) {
+          final String s => DateTime.parse(s),
+          _ => null,
+        },
+        nextRetryAt: switch (json['next_retry_at']) {
+          final String s => DateTime.parse(s),
+          _ => null,
+        },
+        failureReason: json['failure_reason'] as String?,
+      );
+
   /// Computes the canonical idempotency key for [record].
   ///
   /// `sha256(collection + ':' + id + ':' + hlc)` returned as lowercase
@@ -135,32 +161,6 @@ class OutboxEntry {
         'next_retry_at': nextRetryAt?.toUtc().toIso8601String(),
         'failure_reason': failureReason,
       };
-
-  /// Reconstructs an entry from a JSON-compatible map.
-  factory OutboxEntry.fromJson(Map<String, Object?> json) => OutboxEntry(
-        id: json['id']! as String,
-        record: SyncRecord.fromJson(
-          Map<String, Object?>.from(json['record']! as Map<Object?, Object?>),
-        ),
-        operation: OutboxOperation.values.firstWhere(
-          (OutboxOperation op) => op.name == json['operation'],
-        ),
-        idempotencyKey: json['idempotency_key']! as String,
-        status: OutboxStatus.values.firstWhere(
-          (OutboxStatus s) => s.name == json['status'],
-        ),
-        attemptCount: (json['attempt_count'] as int?) ?? 0,
-        createdAt: DateTime.parse(json['created_at']! as String),
-        lastAttemptAt: switch (json['last_attempt_at']) {
-          final String s => DateTime.parse(s),
-          _ => null,
-        },
-        nextRetryAt: switch (json['next_retry_at']) {
-          final String s => DateTime.parse(s),
-          _ => null,
-        },
-        failureReason: json['failure_reason'] as String?,
-      );
 
   @override
   String toString() =>

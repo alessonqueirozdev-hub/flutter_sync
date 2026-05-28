@@ -80,7 +80,7 @@ class FirebaseSyncAdapter implements SyncAdapter {
       final QuerySnapshot<Map<String, Object?>> snap = await query.get();
       final List<SyncRecord> records = snap.docs
           .map((DocumentSnapshot<Map<String, Object?>> doc) =>
-              _handler.docToRecord(request.collection, doc))
+              _handler.docToRecord(request.collection, doc),)
           .toList();
       return SyncPullResult.success(
         records: records,

@@ -3,6 +3,8 @@
 
 import 'dart:math' as math;
 
+import 'package:flutter_sync/flutter_sync.dart' show PNCounter;
+import 'package:flutter_sync/src/crdt/pn_counter.dart' show PNCounter;
 import 'package:meta/meta.dart';
 
 /// Grow-only Conflict-free Replicated Data Type for counting.
@@ -30,6 +32,17 @@ class GCounter {
                 MapEntry<String, int>(key, value < 0 ? 0 : value),
           ),
         );
+
+  /// Reconstructs a counter from a JSON-compatible map.
+  factory GCounter.fromJson(Map<String, Object?> json) {
+    final Map<String, Object?> rawState =
+        Map<String, Object?>.from(json['state']! as Map<Object?, Object?>);
+    final Map<String, int> state = rawState.map<String, int>(
+      (String key, Object? value) =>
+          MapEntry<String, int>(key, (value as num).toInt()),
+    );
+    return GCounter(state);
+  }
 
   /// Per-node state of the counter. Keys are node identifiers, values are
   /// non-negative integers.
@@ -72,17 +85,6 @@ class GCounter {
         'type': 'g_counter',
         'state': _counters,
       };
-
-  /// Reconstructs a counter from a JSON-compatible map.
-  factory GCounter.fromJson(Map<String, Object?> json) {
-    final Map<String, Object?> rawState =
-        Map<String, Object?>.from(json['state']! as Map<Object?, Object?>);
-    final Map<String, int> state = rawState.map<String, int>(
-      (String key, Object? value) =>
-          MapEntry<String, int>(key, (value as num).toInt()),
-    );
-    return GCounter(state);
-  }
 
   @override
   bool operator ==(Object other) {
