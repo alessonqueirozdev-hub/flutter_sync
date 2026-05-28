@@ -99,8 +99,18 @@ class SyncEngine {
   final BehaviorSubject<SyncStatus> _statusSubject =
       BehaviorSubject<SyncStatus>.seeded(const SyncStatus.idle());
   StreamSubscription<NetworkState>? _connectivitySub;
+  final Set<String> _registeredCollections = <String>{};
   bool _started = false;
   bool _disposed = false;
+
+  /// Registers [collection] so subsequent `syncNow()` calls pull updates
+  /// for it even when its outbox is empty.
+  ///
+  /// Called by `SyncRepository` constructors; safe to call multiple times
+  /// for the same collection.
+  void registerCollection(String collection) {
+    _registeredCollections.add(collection);
+  }
 
   /// Broadcast stream of high-level engine status changes.
   Stream<SyncStatus> get status => _statusSubject.stream.distinct();
@@ -221,10 +231,12 @@ class SyncEngine {
   }
 
   Future<Set<String>> _knownCollections() async {
-    // The store does not enumerate metadata, so we infer collections from
-    // the outbox. Repositories register metadata on first use; until then,
-    // an "unknown" collection has nothing to pull.
-    final Set<String> result = <String>{};
+    // Combine repositories explicitly registered through
+    // `registerCollection` with any collection currently present in the
+    // outbox. The union covers both fresh installs (outbox-only) and
+    // long-running sessions where the outbox is drained but the
+    // repositories remain alive.
+    final Set<String> result = <String>{..._registeredCollections};
     final List<OutboxEntry> entries = await outbox.allEntries();
     for (final OutboxEntry e in entries) {
       result.add(e.collection);

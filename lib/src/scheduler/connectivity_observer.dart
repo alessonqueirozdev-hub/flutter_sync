@@ -48,12 +48,31 @@ class ConnectivityObserver {
     if (_upstream != null) {
       return;
     }
-    final List<ConnectivityResult> initial =
-        await _connectivity.checkConnectivity();
-    _current = _translate(initial);
+    // The initial connectivity probe goes through a platform method channel.
+    // In test/server contexts where the binding is not initialized, the
+    // probe throws — we fall back to `none` so the engine still starts
+    // (it will simply behave as if the device were offline until the host
+    // wires up a real connectivity source).
+    try {
+      final List<ConnectivityResult> initial =
+          await _connectivity.checkConnectivity();
+      _current = _translate(initial);
+    } on Object {
+      _current = const NetworkStateNone();
+    }
     _controller.add(_current);
-    _upstream =
-        _connectivity.onConnectivityChanged.listen(_onConnectivityChange);
+    try {
+      _upstream = _connectivity.onConnectivityChanged.listen(
+        _onConnectivityChange,
+        // Swallow stream errors that bubble up from a missing platform
+        // binding (typical in unit tests); without this the engine would
+        // crash on the first connectivity event in the test environment.
+        onError: (Object _, StackTrace __) {},
+        cancelOnError: false,
+      );
+    } on Object {
+      // No platform → no live updates; the observer reports `none` forever.
+    }
   }
 
   void _onConnectivityChange(List<ConnectivityResult> results) {
@@ -100,7 +119,12 @@ class ConnectivityObserver {
     }
     _disposed = true;
     _debounceTimer?.cancel();
-    await _upstream?.cancel();
+    try {
+      await _upstream?.cancel();
+    } on Object {
+      // Cancelling a subscription tied to a missing platform binding can
+      // throw; the engine is shutting down anyway, so ignore.
+    }
     _upstream = null;
     await _controller.close();
   }
