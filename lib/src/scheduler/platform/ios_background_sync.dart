@@ -66,10 +66,10 @@ class IOSBackgroundSync implements BackgroundSync {
           // success because we always call `finish` below. The engine
           // itself logs sync failures through `SyncLogger`.
         }
-        BackgroundFetch.finish(taskId);
+        await BackgroundFetch.finish(taskId);
       },
       (String taskId) async {
-        BackgroundFetch.finish(taskId);
+        await BackgroundFetch.finish(taskId);
       },
     );
     _registered = status == BackgroundFetch.STATUS_AVAILABLE;
