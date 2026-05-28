@@ -63,7 +63,7 @@ void main() {
 
     test('FieldStrategyConfig with merge requires a merger', () {
       expect(
-        () => const FieldStrategyConfig(strategy: FieldStrategy.merge),
+        () => FieldStrategyConfig(strategy: FieldStrategy.merge),
         throwsA(isA<AssertionError>()),
       );
     });
