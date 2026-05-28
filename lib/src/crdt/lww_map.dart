@@ -25,6 +25,11 @@ class LWWMapEntry<V> {
   final bool isDeleted;
 
   /// Returns the merge of this record with [other].
+  ///
+  /// Merge is associative, commutative, and idempotent. Ties on HLC are
+  /// broken in a fixed, content-derived order so that two replicas that
+  /// accidentally produced the same `(physicalTime, counter, nodeId)`
+  /// tuple still converge to the same value.
   LWWMapEntry<V> merge(LWWMapEntry<V> other) {
     if (other.ts > ts) {
       return other;
@@ -32,8 +37,23 @@ class LWWMapEntry<V> {
     if (ts > other.ts) {
       return this;
     }
-    // Same HLC. Prefer the tombstone deterministically.
-    return isDeleted ? this : other;
+    // Same HLC.
+    // 1) Prefer the tombstone.
+    if (isDeleted && !other.isDeleted) {
+      return this;
+    }
+    if (!isDeleted && other.isDeleted) {
+      return other;
+    }
+    if (isDeleted && other.isDeleted) {
+      return this;
+    }
+    // 2) Both live with the same HLC and different (or equal) values.
+    //    Break the tie by string comparison of the encoded value so the
+    //    outcome is independent of operand order.
+    final String mine = '${value}';
+    final String theirs = '${other.value}';
+    return mine.compareTo(theirs) <= 0 ? this : other;
   }
 
   @override

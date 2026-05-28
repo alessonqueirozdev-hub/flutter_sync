@@ -7,6 +7,10 @@ import 'package:flutter_test/flutter_test.dart';
 import '../helpers/test_fixtures.dart';
 
 void main() {
+  // Required so platform channels (e.g. `connectivity_plus`) used by the
+  // engine return controlled defaults instead of throwing at dispose time.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('SyncRepository (engine integration)', () {
     test('save persists locally and enqueues to outbox', () async {
       final MockSyncAdapter adapter = MockSyncAdapter();
