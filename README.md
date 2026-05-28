@@ -1,8 +1,5 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="branding/flutter_sync_logo_transparent.png">
-    <img alt="FlutterSync" src="branding/flutter_sync_logo.png" width="640">
-  </picture>
+  <img alt="FlutterSync" src="branding/flutter_sync_logo.png" width="640">
 </p>
 
 <h1 align="center">FlutterSync</h1>
