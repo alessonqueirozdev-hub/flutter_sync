@@ -40,8 +40,10 @@ void main() {
         'title': 'Take out trash',
         'done': false,
       },
+      // Use a far-future physical time so the watermark filter never
+      // discards this remote record regardless of when the test runs.
       hlc: const HLCTimestamp(
-        physicalTime: 1700000000999,
+        physicalTime: 9999999999999,
         logicalCounter: 0,
         nodeId: 'remote',
       ).toWire(),
