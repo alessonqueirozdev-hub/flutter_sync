@@ -105,7 +105,7 @@ class _StatusBanner extends StatelessWidget {
         };
         return Container(
           width: double.infinity,
-          color: color.withOpacity(0.12),
+          color: color.withValues(alpha: 0.12),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Text(
             label,
