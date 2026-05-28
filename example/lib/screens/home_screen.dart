@@ -38,10 +38,10 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.note_outlined),
-                  title: const Text('Notes'),
-                  subtitle: const Text('Coming soon in this example'),
+                const ListTile(
+                  leading: Icon(Icons.note_outlined),
+                  title: Text('Notes'),
+                  subtitle: Text('Coming soon in this example'),
                   enabled: false,
                 ),
               ],
@@ -53,7 +53,7 @@ class HomeScreen extends StatelessWidget {
               children: <Widget>[
                 Expanded(
                   child: FilledButton.icon(
-                    onPressed: () => flutterSync.syncNow(),
+                    onPressed: flutterSync.syncNow,
                     icon: const Icon(Icons.sync),
                     label: const Text('Sync now'),
                   ),

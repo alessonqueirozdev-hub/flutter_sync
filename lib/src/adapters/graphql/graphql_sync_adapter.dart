@@ -145,7 +145,7 @@ class GraphQLSyncAdapter implements SyncAdapter {
     );
     return stream
         .where((gql.QueryResult<Object?> r) =>
-            !r.hasException && r.data != null)
+            !r.hasException && r.data != null,)
         .map<SyncEvent>((gql.QueryResult<Object?> r) {
       final Map<String, Object?> watch =
           r.data!['sync_watch'] as Map<String, Object?>;

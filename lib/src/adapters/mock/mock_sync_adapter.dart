@@ -108,7 +108,7 @@ class MockSyncAdapter implements SyncAdapter {
         .where((SyncRecord r) =>
             r.collection == request.collection &&
             (request.since == null ||
-                r.hlc.compareTo(request.since!) > 0))
+                r.hlc.compareTo(request.since!) > 0),)
         .toList();
     matching.sort(
       (SyncRecord a, SyncRecord b) => a.hlc.compareTo(b.hlc),
@@ -126,7 +126,7 @@ class MockSyncAdapter implements SyncAdapter {
     final StreamController<SyncEvent> controller =
         _subscribers.putIfAbsent(
       subscription.collection,
-      () => StreamController<SyncEvent>.broadcast(),
+      StreamController<SyncEvent>.broadcast,
     );
     return controller.stream;
   }

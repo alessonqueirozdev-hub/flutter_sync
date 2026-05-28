@@ -133,7 +133,7 @@ void main() {
         physicalTime: 500,
         logicalCounter: 42,
         nodeId: 'local',
-      ));
+      ),);
       expect(clock.current.physicalTime, 500);
       expect(clock.current.logicalCounter, 42);
     });

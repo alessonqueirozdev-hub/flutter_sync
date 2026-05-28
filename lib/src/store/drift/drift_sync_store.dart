@@ -75,7 +75,7 @@ class DriftSyncStore implements SyncStore {
         sql.write(
           query.sorts
               .map((SyncQuerySort s) =>
-                  '${_jsonExtract(s.field)} ${s.direction == SyncQuerySortDirection.descending ? "DESC" : "ASC"}')
+                  '${_jsonExtract(s.field)} ${s.direction == SyncQuerySortDirection.descending ? "DESC" : "ASC"}',)
               .join(', '),
         );
       }
@@ -160,7 +160,7 @@ class DriftSyncStore implements SyncStore {
       downstream.add(SyncStoreEventSnapshot(
         collection: collection,
         records: snapshot,
-      ));
+      ),);
       sub = upstream.listen(
         downstream.add,
         onError: downstream.addError,
@@ -282,11 +282,11 @@ class DriftSyncStore implements SyncStore {
       payload: payload,
       hlc: row['hlc']! as String,
       createdAt: DateTime.fromMillisecondsSinceEpoch(
-        (row['created_at_ms']! as int),
+        row['created_at_ms']! as int,
         isUtc: true,
       ),
       updatedAt: DateTime.fromMillisecondsSinceEpoch(
-        (row['updated_at_ms']! as int),
+        row['updated_at_ms']! as int,
         isUtc: true,
       ),
       isDeleted: (row['is_deleted']! as int) == 1,
@@ -392,7 +392,7 @@ class DriftSyncStore implements SyncStore {
         if (value is! Comparable<Object?> || c.value == null) {
           return false;
         }
-        final int cmp = (value as Comparable<Object?>).compareTo(c.value);
+        final int cmp = value.compareTo(c.value);
         switch (c.operator) {
           case SyncQueryOperator.lessThan:
             return cmp < 0;

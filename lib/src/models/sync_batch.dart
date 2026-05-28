@@ -28,6 +28,24 @@ class SyncBatch {
           'All entries in a SyncBatch must share the same collection.',
         );
 
+  /// Reconstructs a [SyncBatch] from a JSON-compatible map.
+  factory SyncBatch.fromJson(Map<String, Object?> json) {
+    final List<Object?> rawEntries =
+        json['entries']! as List<Object?>;
+    final List<SyncRecord> entries = rawEntries
+        .map(
+          (Object? e) =>
+              SyncRecord.fromJson(Map<String, Object?>.from(e! as Map<Object?, Object?>)),
+        )
+        .toList();
+    return SyncBatch(
+      id: json['id']! as String,
+      collection: json['collection']! as String,
+      entries: entries,
+      createdAt: DateTime.parse(json['created_at']! as String),
+    );
+  }
+
   /// Stable identifier of the batch.
   final String id;
 
@@ -56,24 +74,6 @@ class SyncBatch {
         'created_at': createdAt.toUtc().toIso8601String(),
         'entries': entries.map((SyncRecord r) => r.toJson()).toList(),
       };
-
-  /// Reconstructs a [SyncBatch] from a JSON-compatible map.
-  factory SyncBatch.fromJson(Map<String, Object?> json) {
-    final List<Object?> rawEntries =
-        (json['entries']! as List<Object?>);
-    final List<SyncRecord> entries = rawEntries
-        .map(
-          (Object? e) =>
-              SyncRecord.fromJson(Map<String, Object?>.from(e! as Map<Object?, Object?>)),
-        )
-        .toList();
-    return SyncBatch(
-      id: json['id']! as String,
-      collection: json['collection']! as String,
-      entries: entries,
-      createdAt: DateTime.parse(json['created_at']! as String),
-    );
-  }
 
   @override
   String toString() =>

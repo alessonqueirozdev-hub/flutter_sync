@@ -3,6 +3,7 @@
 
 import 'dart:async';
 
+import 'package:flutter_sync/flutter_sync.dart' show FlutterSync, SyncRepository;
 import 'package:rxdart/rxdart.dart';
 
 import '../adapters/sync_adapter.dart';

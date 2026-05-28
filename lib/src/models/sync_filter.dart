@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 The FlutterSync Authors. All rights reserved.
 
+import 'package:flutter_sync/flutter_sync.dart' show SyncQuery;
+import 'package:flutter_sync/src/models/sync_query.dart' show SyncQuery;
 import 'package:meta/meta.dart';
 
 /// Comparison operators supported by [SyncFilter].

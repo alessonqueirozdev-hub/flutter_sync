@@ -44,9 +44,9 @@ void main() {
     });
 
     test('LogootPosition wire-format round-trips', () {
-      final LogootPosition p = LogootPosition(<LogootAtom>[
-        const LogootAtom(10, 'a'),
-        const LogootAtom(42, 'b'),
+      final LogootPosition p = LogootPosition(const <LogootAtom>[
+        LogootAtom(10, 'a'),
+        LogootAtom(42, 'b'),
       ]);
       expect(LogootPosition.parse(p.toWire()), p);
     });

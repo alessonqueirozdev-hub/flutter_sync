@@ -54,7 +54,7 @@ class ConsoleLogger implements SyncLogger {
       at: DateTime.now().toUtc(),
       tag: tag,
       context: context,
-    ));
+    ),);
   }
 
   @override
@@ -65,7 +65,7 @@ class ConsoleLogger implements SyncLogger {
       at: DateTime.now().toUtc(),
       tag: tag,
       context: context,
-    ));
+    ),);
   }
 
   @override
@@ -76,7 +76,7 @@ class ConsoleLogger implements SyncLogger {
       at: DateTime.now().toUtc(),
       tag: tag,
       context: context,
-    ));
+    ),);
   }
 
   @override
@@ -95,7 +95,7 @@ class ConsoleLogger implements SyncLogger {
       error: error,
       stackTrace: stackTrace,
       context: context,
-    ));
+    ),);
   }
 
   @override
@@ -114,6 +114,6 @@ class ConsoleLogger implements SyncLogger {
       error: error,
       stackTrace: stackTrace,
       context: context,
-    ));
+    ),);
   }
 }

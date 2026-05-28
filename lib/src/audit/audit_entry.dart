@@ -30,15 +30,25 @@ enum AuditOperation {
 class AuditEntry {
   /// Creates an audit entry. [id] defaults to a fresh UUID v4.
   AuditEntry({
-    String? id,
-    required this.occurredAt,
-    required this.collection,
-    required this.recordId,
-    required this.operation,
-    required this.actorNodeId,
+    required this.occurredAt, required this.collection, required this.recordId, required this.operation, required this.actorNodeId, String? id,
     this.detail,
     Uuid? uuid,
   }) : id = id ?? (uuid ?? const Uuid()).v4();
+
+  /// Reconstructs an entry from a JSON-compatible map.
+  factory AuditEntry.fromJson(Map<String, Object?> json) => AuditEntry(
+        id: json['id']! as String,
+        occurredAt: DateTime.parse(json['occurred_at']! as String),
+        collection: json['collection']! as String,
+        recordId: json['record_id']! as String,
+        operation: AuditOperation.values
+            .firstWhere((AuditOperation o) => o.name == json['operation']),
+        actorNodeId: json['actor_node_id']! as String,
+        detail: switch (json['detail']) {
+          final Map<Object?, Object?> m => Map<String, Object?>.from(m),
+          _ => null,
+        },
+      );
 
   /// Stable identifier of the entry.
   final String id;
@@ -71,21 +81,6 @@ class AuditEntry {
         'actor_node_id': actorNodeId,
         'detail': detail,
       };
-
-  /// Reconstructs an entry from a JSON-compatible map.
-  factory AuditEntry.fromJson(Map<String, Object?> json) => AuditEntry(
-        id: json['id']! as String,
-        occurredAt: DateTime.parse(json['occurred_at']! as String),
-        collection: json['collection']! as String,
-        recordId: json['record_id']! as String,
-        operation: AuditOperation.values
-            .firstWhere((AuditOperation o) => o.name == json['operation']),
-        actorNodeId: json['actor_node_id']! as String,
-        detail: switch (json['detail']) {
-          final Map<Object?, Object?> m => Map<String, Object?>.from(m),
-          _ => null,
-        },
-      );
 
   @override
   String toString() =>

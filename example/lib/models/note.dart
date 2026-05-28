@@ -15,6 +15,14 @@ class Note implements SyncModel {
     required this.updatedAt,
   });
 
+  /// Reconstructs a Note from JSON.
+  factory Note.fromJson(Map<String, dynamic> json) => Note(
+        id: json['id']! as String,
+        title: json['title']! as String,
+        body: json['body']! as String,
+        updatedAt: DateTime.parse(json['updated_at']! as String),
+      );
+
   @override
   final String id;
 
@@ -34,12 +42,4 @@ class Note implements SyncModel {
         'body': body,
         'updated_at': updatedAt.toUtc().toIso8601String(),
       };
-
-  /// Reconstructs a Note from JSON.
-  factory Note.fromJson(Map<String, dynamic> json) => Note(
-        id: json['id']! as String,
-        title: json['title']! as String,
-        body: json['body']! as String,
-        updatedAt: DateTime.parse(json['updated_at']! as String),
-      );
 }

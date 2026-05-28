@@ -96,7 +96,7 @@ class HiveSyncStore implements SyncStore {
             if (av is! Comparable<Object?> || bv == null) {
               continue;
             }
-            final int cmp = (av as Comparable<Object?>).compareTo(bv);
+            final int cmp = av.compareTo(bv);
             if (cmp != 0) {
               return s.direction == SyncQuerySortDirection.descending
                   ? -cmp
@@ -154,7 +154,7 @@ class HiveSyncStore implements SyncStore {
   Stream<SyncStoreEvent> watch(String collection, {SyncQuery? query}) {
     final StreamController<SyncStoreEvent> upstream = _watchers.putIfAbsent(
       collection,
-      () => StreamController<SyncStoreEvent>.broadcast(),
+      StreamController<SyncStoreEvent>.broadcast,
     );
     final StreamController<SyncStoreEvent> downstream =
         StreamController<SyncStoreEvent>.broadcast();
@@ -165,10 +165,10 @@ class HiveSyncStore implements SyncStore {
       downstream.add(SyncStoreEventSnapshot(
         collection: collection,
         records: snapshot,
-      ));
+      ),);
       sub = upstream.stream
           .where((SyncStoreEvent e) =>
-              query == null || _matchesQuery(e, query))
+              query == null || _matchesQuery(e, query),)
           .listen(
         downstream.add,
         onError: downstream.addError,
@@ -284,7 +284,7 @@ class HiveSyncStore implements SyncStore {
         if (value is! Comparable<Object?> || c.value == null) {
           return false;
         }
-        final int cmp = (value as Comparable<Object?>).compareTo(c.value);
+        final int cmp = value.compareTo(c.value);
         switch (c.operator) {
           case SyncQueryOperator.lessThan:
             return cmp < 0;

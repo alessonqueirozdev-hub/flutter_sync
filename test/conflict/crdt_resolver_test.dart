@@ -35,14 +35,14 @@ void main() {
         local: local,
         remote: remote,
         detectedAt: DateTime.utc(2026),
-      ));
+      ),);
       final List<Object?> tags = winner.payload['tags']! as List<Object?>;
       expect(tags.length, 3);
       expect(tags.toSet(), <Object?>{'a', 'b', 'c'});
     });
 
     test('falls back to LWW for unregistered fields', () async {
-      final ConflictResolver resolver = CRDTResolver(
+      const ConflictResolver resolver = CRDTResolver(
         mergers: <String, CRDTFieldMerger>{},
       );
       final SyncRecord local = TestFixtures.record(
@@ -60,7 +60,7 @@ void main() {
         local: local,
         remote: remote,
         detectedAt: DateTime.utc(2026),
-      ));
+      ),);
       expect(winner.payload['title'], 'Remote');
     });
 

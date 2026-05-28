@@ -23,6 +23,16 @@ class PNCounter {
       : positive = positive ?? GCounter(),
         negative = negative ?? GCounter();
 
+  /// Reconstructs a counter from a JSON-compatible map.
+  factory PNCounter.fromJson(Map<String, Object?> json) => PNCounter(
+        positive: GCounter.fromJson(
+          Map<String, Object?>.from(json['positive']! as Map<Object?, Object?>),
+        ),
+        negative: GCounter.fromJson(
+          Map<String, Object?>.from(json['negative']! as Map<Object?, Object?>),
+        ),
+      );
+
   /// Sub-counter accumulating positive contributions.
   final GCounter positive;
 
@@ -58,16 +68,6 @@ class PNCounter {
         'positive': positive.toJson(),
         'negative': negative.toJson(),
       };
-
-  /// Reconstructs a counter from a JSON-compatible map.
-  factory PNCounter.fromJson(Map<String, Object?> json) => PNCounter(
-        positive: GCounter.fromJson(
-          Map<String, Object?>.from(json['positive']! as Map<Object?, Object?>),
-        ),
-        negative: GCounter.fromJson(
-          Map<String, Object?>.from(json['negative']! as Map<Object?, Object?>),
-        ),
-      );
 
   @override
   bool operator ==(Object other) =>

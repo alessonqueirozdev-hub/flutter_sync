@@ -84,7 +84,7 @@ class FlutterSync {
     await store.initialize(SyncStoreConfig(
       nodeId: nodeId,
       encrypted: encryptionConfig != null,
-    ));
+    ),);
 
     if (migrations.isNotEmpty) {
       final MigrationRunner runner = MigrationRunner(
