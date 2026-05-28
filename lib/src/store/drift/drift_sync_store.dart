@@ -198,7 +198,7 @@ class DriftSyncStore implements SyncStore {
         final int ms => DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true),
         _ => null,
       },
-      failureCount: row.read<int>('failure_count'),
+      failureCount: (row['failure_count'] as int?) ?? 0,
     );
   }
 
