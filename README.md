@@ -50,8 +50,8 @@ The package is delivered across 18 numbered phases. Each phase lives on its own 
 - [x] Phase 8 — Scheduler and per-platform background sync
 - [x] Phase 9 — Backend adapters (Supabase, Firebase, REST, GraphQL, gRPC, Mock)
 - [x] Phase 10 — AES-256-GCM encryption at rest with Argon2id
-- [ ] Phase 11 — Audit trail and structured logging
-- [ ] Phase 12 — Schema migrations
+- [x] Phase 11 — Audit trail and structured logging
+- [x] Phase 12 — Schema migrations
 - [ ] Phase 13 — Core engine and public API
 - [ ] Phase 14 — In-app DevTools overlay
 - [ ] Phase 15 — Tests (unit, behavioral, integration, property-based)
@@ -198,6 +198,10 @@ FlutterSync ships six adapters out of the box in `lib/src/adapters/`. Every adap
 When an `EncryptionConfig` is supplied to `FlutterSync.configure`, the `RecordEncryptor` wraps protected fields in an AES-256-GCM envelope before any record reaches the local store or the outbox. Keys are derived from the user's passphrase with Argon2id (default cost `memory = 64 MiB`, `iterations = 3`, `parallelism = 4`) and cached through a pluggable `KeyStore` — `SecureStorageKeyStore` ships as the default, backed by Keychain / Keystore / DPAPI / libsecret on the respective platforms.
 
 Reserved fields (`id`, `collection`, `hlc`, `created_at`, `updated_at`, `is_deleted`, and anything prefixed `_sync_`) are never encrypted because the engine relies on them for routing, dedupe, and ordering.
+
+## Schema migrations
+
+Local-store schema changes (renamed columns, denormalized fields, new indexes) are managed by versioned `SchemaMigration` objects passed to `FlutterSync.configure`. The `MigrationRunner` sorts them by version, asserts there are no gaps or duplicates, and applies every migration whose version is above the recorded one — wrapped in a transaction so a half-applied schema can never be observed by readers. Optional `down` callbacks support rollback for sites with strict release-train policies.
 
 ## Documentation
 
