@@ -48,7 +48,7 @@ The package is delivered across 18 numbered phases. Each phase lives on its own 
 - [x] Phase 6 — Local store (Drift and Hive implementations)
 - [x] Phase 7 — Connectivity and bandwidth awareness
 - [x] Phase 8 — Scheduler and per-platform background sync
-- [ ] Phase 9 — Backend adapters (Supabase, Firebase, REST, GraphQL, gRPC, Mock)
+- [x] Phase 9 — Backend adapters (Supabase, Firebase, REST, GraphQL, gRPC, Mock)
 - [ ] Phase 10 — AES-256-GCM encryption at rest with Argon2id
 - [ ] Phase 11 — Audit trail and structured logging
 - [ ] Phase 12 — Schema migrations
@@ -179,6 +179,19 @@ FlutterSync inspects network conditions before pushing data. The `ConnectivityOb
 | Web | `ServiceWorker` `SyncManager` bridge | 5 min |
 
 Host apps must add the platform manifest entries listed in `doc/background_sync.md` (Phase 17) and register the background callback once in `main()`.
+
+## Backend adapters
+
+FlutterSync ships six adapters out of the box in `lib/src/adapters/`. Every adapter implements the same `SyncAdapter` contract, so swapping backends is a one-line change in `FlutterSync.configure`.
+
+| Adapter | Path | Real-time | Notes |
+|---|---|:---:|---|
+| `SupabaseSyncAdapter` | `supabase/` | Yes | Includes `SupabaseRlsHelper` for ready-to-paste RLS policies. |
+| `FirebaseSyncAdapter` | `firebase/` | Yes | Maps each collection to a top-level Firestore collection. |
+| `RestSyncAdapter` | `rest/` | No (polled) | JSON over HTTP/HTTPS; pluggable `RestAuthStrategy`. |
+| `GraphQLSyncAdapter` | `graphql/` | If endpoint set | Queries/mutations/subscriptions overridable via `GraphQLDocumentFactory`. |
+| `GrpcSyncAdapter` | `grpc/` | Yes | Ships `flutter_sync.proto`; users supply a generated `GrpcSyncTransport`. |
+| `MockSyncAdapter` | `mock/` | Yes | For tests and the example app; configurable failure injection. |
 
 ## Documentation
 
