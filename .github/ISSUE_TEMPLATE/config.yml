@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Ask a question or discuss a design
+    url: https://github.com/alessonqueirozdev-hub/flutter_sync/discussions
+    about: For open-ended questions, design conversations, sharing what you built, or help getting started — please use Discussions instead of an issue.
+  - name: 🔐 Report a security vulnerability
+    url: https://github.com/alessonqueirozdev-hub/flutter_sync/security/advisories/new
+    about: Security issues are handled privately. See SECURITY.md for details.
+  - name: 📋 See the roadmap
+    url: https://github.com/alessonqueirozdev-hub/flutter_sync/blob/main/ROADMAP.md
+    about: Before filing a feature request, check the roadmap — your idea may already be planned.
+  - name: 🤝 Read the contributing guide
+    url: https://github.com/alessonqueirozdev-hub/flutter_sync/blob/main/CONTRIBUTING.md
+    about: New contributor? Start here for setup, conventions, and high-impact areas where help is most needed.
