@@ -17,7 +17,7 @@ Use one of the private channels below:
 
 1. **Preferred** — open a private vulnerability report via GitHub's "Security" tab:
    https://github.com/alessonqueirozdev-hub/flutter_sync/security/advisories/new
-2. **Alternative** — email the maintainer at `suporte@mcpark.com.br` with the subject `FlutterSync security` and a clear description.
+2. **Alternative** — email the maintainer at `alessonqueiroz.dev@gmail.com` with the subject `FlutterSync security` and a clear description.
 
 Please include:
 

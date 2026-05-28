@@ -14,7 +14,7 @@ This Code of Conduct applies within all project spaces — the GitHub repository
 
 ## Reporting
 
-If you observe behavior that does not align with the Contributor Covenant, please contact the maintainer privately at `suporte@mcpark.com.br` with the subject `FlutterSync conduct`.
+If you observe behavior that does not align with the Contributor Covenant, please contact the maintainer privately at `alessonqueiroz.dev@gmail.com` with the subject `FlutterSync conduct`.
 
 All reports are reviewed and investigated promptly and fairly. The maintainer is obligated to respect the privacy and security of anyone who reports an incident.
 
