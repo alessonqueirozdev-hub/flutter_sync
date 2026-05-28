@@ -132,7 +132,7 @@ class GraphQLSyncAdapter implements SyncAdapter {
     if (config.subscriptionEndpoint == null) {
       return const Stream<SyncEvent>.empty();
     }
-    final gql.Stream<gql.QueryResult<Object?>> stream = _client.subscribe(
+    final Stream<gql.QueryResult<Object?>> stream = _client.subscribe(
       gql.SubscriptionOptions(
         document: gql.gql(
           config.documentFactory.subscribeDocument(subscription.collection),
