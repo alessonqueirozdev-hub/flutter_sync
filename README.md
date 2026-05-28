@@ -45,8 +45,8 @@ The package is delivered across 18 numbered phases. Each phase lives on its own 
 - [x] Phase 3 — CRDTs (GCounter, PNCounter, TwoPhaseSet, LWWSet, LWWMap, SyncText)
 - [x] Phase 4 — Conflict resolvers (LWW, ServerWins, ClientWins, CRDT, FieldLevel)
 - [x] Phase 5 — Persistent outbox with exponential-backoff retry
-- [ ] Phase 6 — Local store (Drift and Hive implementations)
-- [ ] Phase 7 — Connectivity and bandwidth awareness
+- [x] Phase 6 — Local store (Drift and Hive implementations)
+- [x] Phase 7 — Connectivity and bandwidth awareness
 - [ ] Phase 8 — Scheduler and per-platform background sync
 - [ ] Phase 9 — Backend adapters (Supabase, Firebase, REST, GraphQL, gRPC, Mock)
 - [ ] Phase 10 — AES-256-GCM encryption at rest with Argon2id
@@ -162,6 +162,10 @@ Every write that the engine reports as successful is durably stored in the **out
 - `ExponentialBackoffRetryStrategy` computes the delay before the next attempt: `min(baseDelay * 2^attempts + jitter, maxDelay)`, with defaults of `baseDelay = 1 s`, `maxDelay = 5 min`, `maxAttempts = 20`. A `ConstantRetryStrategy` is shipped for tests.
 - `OutboxQueue` is the durable interface (in-memory implementation ships today; the Drift-backed variant lands in Phase 6).
 - `OutboxProcessor` drains the queue by batching due entries per collection, calling `SyncAdapter.push`, and translating the result into entry status updates — succeeded entries are TTL-evicted, transient failures are rescheduled with backoff, permanent failures are dead-lettered and surfaced via an `onFailure` callback.
+
+## Connectivity and bandwidth awareness
+
+FlutterSync inspects network conditions before pushing data. The `ConnectivityObserver` wraps `connectivity_plus` and emits a debounced stream of `NetworkState` values (`none`, `wifi`, `mobile`, `ethernet`, `vpn`, `other`); the `BandwidthMonitor` keeps a rolling window of measured push throughput per state and recommends an adaptive batch size so each push completes within a target duration. Wi-Fi and Ethernet get larger batches; mobile data uses smaller batches to keep cost and latency in check; offline returns the minimum batch.
 
 ## Documentation
 
