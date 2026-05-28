@@ -50,7 +50,7 @@ class AndroidBackgroundSync implements BackgroundSync {
       constraints: Constraints(
         networkType: config.requiresNetwork
             ? NetworkType.connected
-            : NetworkType.notRequired,
+            : NetworkType.not_required,
         requiresCharging: config.requiresCharging,
         requiresBatteryNotLow: config.requiresBatteryNotLow,
         requiresDeviceIdle: config.requiresIdle,
