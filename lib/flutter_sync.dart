@@ -14,6 +14,10 @@ library;
 export 'src/core/flutter_sync.dart';
 export 'src/core/sync_repository.dart';
 
+// Delta primitives (advanced users / DevTools authors).
+export 'src/core/delta/delta_computer.dart';
+export 'src/core/delta/delta_merger.dart';
+
 // Models.
 export 'src/models/network_state.dart';
 export 'src/models/sync_batch.dart';
