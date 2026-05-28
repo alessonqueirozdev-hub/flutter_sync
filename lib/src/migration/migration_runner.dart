@@ -62,7 +62,7 @@ class MigrationRunner {
   }) async {
     final List<SchemaMigration> sorted = List<SchemaMigration>.of(migrations)
       ..sort((SchemaMigration a, SchemaMigration b) =>
-          a.version.compareTo(b.version));
+          a.version.compareTo(b.version),);
     _assertNoDuplicates(sorted);
 
     final List<SchemaMigration> applied = <SchemaMigration>[];

@@ -111,7 +111,7 @@ class FlutterSyncDatabase {
     if (_initialized) {
       return;
     }
-    await _executor.ensureOpen(_SchemaOnlyOpener(schemaVersion));
+    await _executor.ensureOpen(const _SchemaOnlyOpener(schemaVersion));
     await runInTransaction((QueryExecutor tx) async {
       for (final String sql in flutterSyncDriftSchema.values) {
         await tx.runCustom(sql);
@@ -132,7 +132,7 @@ class FlutterSyncDatabase {
     Future<T> Function(QueryExecutor tx) action,
   ) async {
     final TransactionExecutor tx = _executor.beginTransaction();
-    await tx.ensureOpen(_SchemaOnlyOpener(schemaVersion));
+    await tx.ensureOpen(const _SchemaOnlyOpener(schemaVersion));
     try {
       final T result = await action(tx);
       await tx.send();

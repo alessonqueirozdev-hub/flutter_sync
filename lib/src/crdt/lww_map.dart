@@ -56,6 +56,27 @@ class LWWMap<K, V> {
           entries ?? <K, LWWMapEntry<V>>{},
         );
 
+  /// Reconstructs a map from a JSON-compatible representation.
+  factory LWWMap.fromJson(
+    Map<String, Object?> json, {
+    required K Function(Object?) decodeKey,
+    required V Function(Object?) decodeValue,
+  }) {
+    final List<Object?> raw = json['entries']! as List<Object?>;
+    final Map<K, LWWMapEntry<V>> entries = <K, LWWMapEntry<V>>{};
+    for (final Object? rawEntry in raw) {
+      final Map<String, Object?> map =
+          Map<String, Object?>.from(rawEntry! as Map<Object?, Object?>);
+      final K key = decodeKey(map['key']);
+      final bool isDeleted = (map['isDeleted'] as bool?) ?? false;
+      final V? value = isDeleted ? null : decodeValue(map['value']);
+      final HLCTimestamp ts = HLCTimestamp.parse(map['ts']! as String);
+      entries[key] =
+          LWWMapEntry<V>(value: value, ts: ts, isDeleted: isDeleted);
+    }
+    return LWWMap<K, V>(entries);
+  }
+
   /// Per-key tracking records (including tombstones).
   final Map<K, LWWMapEntry<V>> _entries;
 
@@ -136,27 +157,6 @@ class LWWMap<K, V> {
             },
         ],
       };
-
-  /// Reconstructs a map from a JSON-compatible representation.
-  factory LWWMap.fromJson(
-    Map<String, Object?> json, {
-    required K Function(Object?) decodeKey,
-    required V Function(Object?) decodeValue,
-  }) {
-    final List<Object?> raw = json['entries']! as List<Object?>;
-    final Map<K, LWWMapEntry<V>> entries = <K, LWWMapEntry<V>>{};
-    for (final Object? rawEntry in raw) {
-      final Map<String, Object?> map =
-          Map<String, Object?>.from(rawEntry! as Map<Object?, Object?>);
-      final K key = decodeKey(map['key']);
-      final bool isDeleted = (map['isDeleted'] as bool?) ?? false;
-      final V? value = isDeleted ? null : decodeValue(map['value']);
-      final HLCTimestamp ts = HLCTimestamp.parse(map['ts']! as String);
-      entries[key] =
-          LWWMapEntry<V>(value: value, ts: ts, isDeleted: isDeleted);
-    }
-    return LWWMap<K, V>(entries);
-  }
 
   @override
   String toString() =>

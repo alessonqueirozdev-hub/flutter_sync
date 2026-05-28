@@ -38,6 +38,34 @@ class HLCTimestamp implements Comparable<HLCTimestamp> {
         assert(logicalCounter >= 0, 'logicalCounter must be non-negative'),
         assert(nodeId.length > 0, 'nodeId must be non-empty');
 
+  /// Parses [wire] into a [HLCTimestamp].
+  ///
+  /// Throws [FormatException] when [wire] does not match the canonical
+  /// `{physicalMs}-{counter}-{nodeId}` format.
+  factory HLCTimestamp.parse(String wire) {
+    final int firstDash = wire.indexOf('-');
+    if (firstDash <= 0) {
+      throw FormatException('Invalid HLC wire format: $wire');
+    }
+    final int secondDash = wire.indexOf('-', firstDash + 1);
+    if (secondDash <= firstDash) {
+      throw FormatException('Invalid HLC wire format: $wire');
+    }
+    final String ptSegment = wire.substring(0, firstDash);
+    final String cSegment = wire.substring(firstDash + 1, secondDash);
+    final String nodeSegment = wire.substring(secondDash + 1);
+    final int? pt = int.tryParse(ptSegment);
+    final int? c = int.tryParse(cSegment);
+    if (pt == null || c == null || nodeSegment.isEmpty) {
+      throw FormatException('Invalid HLC wire format: $wire');
+    }
+    return HLCTimestamp(
+      physicalTime: pt,
+      logicalCounter: c,
+      nodeId: nodeSegment,
+    );
+  }
+
   /// Returns a zero-valued timestamp for [nodeId].
   ///
   /// Used as the seed for a brand-new clock that has not yet emitted any
@@ -68,34 +96,6 @@ class HLCTimestamp implements Comparable<HLCTimestamp> {
     final String pt = physicalTime.toString().padLeft(_physicalPad, '0');
     final String c = logicalCounter.toString().padLeft(_counterPad, '0');
     return '$pt-$c-$nodeId';
-  }
-
-  /// Parses [wire] into a [HLCTimestamp].
-  ///
-  /// Throws [FormatException] when [wire] does not match the canonical
-  /// `{physicalMs}-{counter}-{nodeId}` format.
-  factory HLCTimestamp.parse(String wire) {
-    final int firstDash = wire.indexOf('-');
-    if (firstDash <= 0) {
-      throw FormatException('Invalid HLC wire format: $wire');
-    }
-    final int secondDash = wire.indexOf('-', firstDash + 1);
-    if (secondDash <= firstDash) {
-      throw FormatException('Invalid HLC wire format: $wire');
-    }
-    final String ptSegment = wire.substring(0, firstDash);
-    final String cSegment = wire.substring(firstDash + 1, secondDash);
-    final String nodeSegment = wire.substring(secondDash + 1);
-    final int? pt = int.tryParse(ptSegment);
-    final int? c = int.tryParse(cSegment);
-    if (pt == null || c == null || nodeSegment.isEmpty) {
-      throw FormatException('Invalid HLC wire format: $wire');
-    }
-    return HLCTimestamp(
-      physicalTime: pt,
-      logicalCounter: c,
-      nodeId: nodeSegment,
-    );
   }
 
   /// Returns a copy of this timestamp with the supplied fields replaced.

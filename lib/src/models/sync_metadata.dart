@@ -24,6 +24,24 @@ class SyncMetadata {
     this.failureCount = 0,
   });
 
+  /// Reconstructs a [SyncMetadata] from a JSON-compatible map.
+  factory SyncMetadata.fromJson(Map<String, Object?> json) => SyncMetadata(
+        collection: json['collection']! as String,
+        nodeId: json['node_id']! as String,
+        lastSyncedAt: json['last_synced_at'] as String?,
+        recordCount: (json['record_count'] as int?) ?? 0,
+        pendingCount: (json['pending_count'] as int?) ?? 0,
+        lastSyncAttemptAt: switch (json['last_sync_attempt_at']) {
+          final String s => DateTime.parse(s),
+          _ => null,
+        },
+        lastSyncSuccessAt: switch (json['last_sync_success_at']) {
+          final String s => DateTime.parse(s),
+          _ => null,
+        },
+        failureCount: (json['failure_count'] as int?) ?? 0,
+      );
+
   /// Returns an empty metadata snapshot bound to [collection] and [nodeId].
   factory SyncMetadata.empty({
     required String collection,
@@ -92,24 +110,6 @@ class SyncMetadata {
         'last_sync_success_at': lastSyncSuccessAt?.toUtc().toIso8601String(),
         'failure_count': failureCount,
       };
-
-  /// Reconstructs a [SyncMetadata] from a JSON-compatible map.
-  factory SyncMetadata.fromJson(Map<String, Object?> json) => SyncMetadata(
-        collection: json['collection']! as String,
-        nodeId: json['node_id']! as String,
-        lastSyncedAt: json['last_synced_at'] as String?,
-        recordCount: (json['record_count'] as int?) ?? 0,
-        pendingCount: (json['pending_count'] as int?) ?? 0,
-        lastSyncAttemptAt: switch (json['last_sync_attempt_at']) {
-          final String s => DateTime.parse(s),
-          _ => null,
-        },
-        lastSyncSuccessAt: switch (json['last_sync_success_at']) {
-          final String s => DateTime.parse(s),
-          _ => null,
-        },
-        failureCount: (json['failure_count'] as int?) ?? 0,
-      );
 
   @override
   bool operator ==(Object other) {

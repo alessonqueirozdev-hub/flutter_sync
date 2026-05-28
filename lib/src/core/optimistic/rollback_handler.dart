@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 The FlutterSync Authors. All rights reserved.
 
+import 'package:flutter_sync/src/core/optimistic/optimistic_update_manager.dart' show OptimisticUpdateManager;
 import 'package:meta/meta.dart';
 
 import '../../models/sync_record.dart';

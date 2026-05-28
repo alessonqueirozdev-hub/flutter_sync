@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 The FlutterSync Authors. All rights reserved.
 
+import 'package:flutter_sync/flutter_sync.dart' show TwoPhaseSet;
+import 'package:flutter_sync/src/crdt/two_phase_set.dart' show TwoPhaseSet;
 import 'package:meta/meta.dart';
 
 import '../core/hlc/hlc_timestamp.dart';
@@ -62,6 +64,31 @@ class LWWSet<T> {
       : _entries = Map<T, LWWSetEntry<T>>.unmodifiable(
           entries ?? <T, LWWSetEntry<T>>{},
         );
+
+  /// Reconstructs a set from a JSON-compatible map.
+  factory LWWSet.fromJson(
+    Map<String, Object?> json, {
+    required T Function(Object?) decode,
+  }) {
+    final List<Object?> raw = json['entries']! as List<Object?>;
+    final Map<T, LWWSetEntry<T>> entries = <T, LWWSetEntry<T>>{};
+    for (final Object? rawEntry in raw) {
+      final Map<String, Object?> map =
+          Map<String, Object?>.from(rawEntry! as Map<Object?, Object?>);
+      final T element = decode(map['element']);
+      final HLCTimestamp addTs = HLCTimestamp.parse(map['addTs']! as String);
+      final HLCTimestamp? removeTs = switch (map['removeTs']) {
+        final String s => HLCTimestamp.parse(s),
+        _ => null,
+      };
+      entries[element] = LWWSetEntry<T>(
+        element: element,
+        addTs: addTs,
+        removeTs: removeTs,
+      );
+    }
+    return LWWSet<T>(entries);
+  }
 
   /// Per-element tracking records.
   final Map<T, LWWSetEntry<T>> _entries;
@@ -134,31 +161,6 @@ class LWWSet<T> {
             },
         ],
       };
-
-  /// Reconstructs a set from a JSON-compatible map.
-  factory LWWSet.fromJson(
-    Map<String, Object?> json, {
-    required T Function(Object?) decode,
-  }) {
-    final List<Object?> raw = json['entries']! as List<Object?>;
-    final Map<T, LWWSetEntry<T>> entries = <T, LWWSetEntry<T>>{};
-    for (final Object? rawEntry in raw) {
-      final Map<String, Object?> map =
-          Map<String, Object?>.from(rawEntry! as Map<Object?, Object?>);
-      final T element = decode(map['element']);
-      final HLCTimestamp addTs = HLCTimestamp.parse(map['addTs']! as String);
-      final HLCTimestamp? removeTs = switch (map['removeTs']) {
-        final String s => HLCTimestamp.parse(s),
-        _ => null,
-      };
-      entries[element] = LWWSetEntry<T>(
-        element: element,
-        addTs: addTs,
-        removeTs: removeTs,
-      );
-    }
-    return LWWSet<T>(entries);
-  }
 
   @override
   String toString() =>

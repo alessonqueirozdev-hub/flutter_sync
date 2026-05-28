@@ -15,6 +15,14 @@ class Todo implements SyncModel {
     this.priority = 0,
   });
 
+  /// Reconstructs a Todo from JSON.
+  factory Todo.fromJson(Map<String, dynamic> json) => Todo(
+        id: json['id']! as String,
+        title: json['title']! as String,
+        completed: (json['completed'] as bool?) ?? false,
+        priority: (json['priority'] as int?) ?? 0,
+      );
+
   @override
   final String id;
 
@@ -34,14 +42,6 @@ class Todo implements SyncModel {
         'completed': completed,
         'priority': priority,
       };
-
-  /// Reconstructs a Todo from JSON.
-  factory Todo.fromJson(Map<String, dynamic> json) => Todo(
-        id: json['id']! as String,
-        title: json['title']! as String,
-        completed: (json['completed'] as bool?) ?? false,
-        priority: (json['priority'] as int?) ?? 0,
-      );
 
   /// Returns a copy with the supplied fields replaced.
   Todo copyWith({String? title, bool? completed, int? priority}) => Todo(

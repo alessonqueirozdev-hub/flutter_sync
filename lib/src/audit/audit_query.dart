@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 The FlutterSync Authors. All rights reserved.
 
+import 'package:flutter_sync/flutter_sync.dart' show AuditTrail;
+import 'package:flutter_sync/src/audit/audit_trail.dart' show AuditTrail;
 import 'package:meta/meta.dart';
 
 import 'audit_entry.dart';

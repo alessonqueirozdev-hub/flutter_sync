@@ -3,6 +3,7 @@
 
 import 'dart:async';
 
+import 'package:flutter_sync/flutter_sync.dart' show FlutterSync, SyncRepository;
 import 'package:rxdart/rxdart.dart';
 
 import '../adapters/sync_adapter.dart';
@@ -10,12 +11,10 @@ import '../audit/audit_entry.dart';
 import '../audit/audit_trail.dart';
 import '../bandwidth/bandwidth_monitor.dart';
 import '../conflict/conflict_resolver.dart';
-import '../encryption/encryption_config.dart';
 import '../encryption/record_encryptor.dart';
 import '../logging/sync_logger.dart';
 import '../models/network_state.dart';
 import '../models/sync_debug_info.dart';
-import '../models/sync_event.dart';
 import '../models/sync_metadata.dart';
 import '../models/sync_pull_request.dart';
 import '../models/sync_pull_result.dart';
@@ -24,13 +23,12 @@ import '../models/sync_status.dart';
 import '../outbox/outbox_entry.dart';
 import '../outbox/outbox_processor.dart';
 import '../outbox/outbox_queue.dart';
-import '../outbox/retry_strategy.dart';
 import '../scheduler/sync_scheduler.dart';
 import '../store/sync_store.dart';
 import 'delta/delta_merger.dart';
 import 'hlc/hlc_clock.dart';
 import 'hlc/hlc_node.dart';
-import 'optimistic/optimistic_update_manager.dart';
+import 'hlc/hlc_timestamp.dart';
 
 /// Central orchestrator binding together every FlutterSync subsystem.
 ///

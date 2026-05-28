@@ -84,7 +84,7 @@ class InMemorySyncStore implements SyncStore {
   Stream<SyncStoreEvent> watch(String collection, {SyncQuery? query}) {
     final StreamController<SyncStoreEvent> controller = _watchers.putIfAbsent(
       collection,
-      () => StreamController<SyncStoreEvent>.broadcast(),
+      StreamController<SyncStoreEvent>.broadcast,
     );
     return controller.stream;
   }
