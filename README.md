@@ -49,7 +49,7 @@ The package is delivered across 18 numbered phases. Each phase lives on its own 
 - [x] Phase 7 — Connectivity and bandwidth awareness
 - [x] Phase 8 — Scheduler and per-platform background sync
 - [x] Phase 9 — Backend adapters (Supabase, Firebase, REST, GraphQL, gRPC, Mock)
-- [ ] Phase 10 — AES-256-GCM encryption at rest with Argon2id
+- [x] Phase 10 — AES-256-GCM encryption at rest with Argon2id
 - [ ] Phase 11 — Audit trail and structured logging
 - [ ] Phase 12 — Schema migrations
 - [ ] Phase 13 — Core engine and public API
@@ -192,6 +192,12 @@ FlutterSync ships six adapters out of the box in `lib/src/adapters/`. Every adap
 | `GraphQLSyncAdapter` | `graphql/` | If endpoint set | Queries/mutations/subscriptions overridable via `GraphQLDocumentFactory`. |
 | `GrpcSyncAdapter` | `grpc/` | Yes | Ships `flutter_sync.proto`; users supply a generated `GrpcSyncTransport`. |
 | `MockSyncAdapter` | `mock/` | Yes | For tests and the example app; configurable failure injection. |
+
+## Encryption at rest
+
+When an `EncryptionConfig` is supplied to `FlutterSync.configure`, the `RecordEncryptor` wraps protected fields in an AES-256-GCM envelope before any record reaches the local store or the outbox. Keys are derived from the user's passphrase with Argon2id (default cost `memory = 64 MiB`, `iterations = 3`, `parallelism = 4`) and cached through a pluggable `KeyStore` — `SecureStorageKeyStore` ships as the default, backed by Keychain / Keystore / DPAPI / libsecret on the respective platforms.
+
+Reserved fields (`id`, `collection`, `hlc`, `created_at`, `updated_at`, `is_deleted`, and anything prefixed `_sync_`) are never encrypted because the engine relies on them for routing, dedupe, and ordering.
 
 ## Documentation
 
