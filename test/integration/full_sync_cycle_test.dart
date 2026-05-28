@@ -7,6 +7,10 @@ import 'package:flutter_test/flutter_test.dart';
 import '../helpers/test_store.dart';
 
 void main() {
+  // Required so platform channels (e.g. `connectivity_plus`) used by the
+  // engine return controlled defaults instead of throwing at dispose time.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   test('write → outbox → push → pull cycle round-trips through MockSyncAdapter',
       () async {
     final MockSyncAdapter adapter = MockSyncAdapter();
