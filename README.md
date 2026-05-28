@@ -1,12 +1,25 @@
-# FlutterSync
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="branding/flutter_sync_logo_transparent.png">
+    <img alt="FlutterSync" src="branding/flutter_sync_logo.png" width="640">
+  </picture>
+</p>
 
-> The most powerful offline-first sync engine for Flutter — multi-backend, CRDT-aware, HLC-ordered, with real background sync on every platform.
+<h1 align="center">FlutterSync</h1>
+
+<p align="center">
+  <strong>The most powerful offline-first sync engine for Flutter — multi-backend, CRDT-aware, HLC-ordered, with real background sync on every platform.</strong>
+</p>
+
+<p align="center">
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![CI](https://github.com/your-org/flutter_sync/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/flutter_sync/actions/workflows/ci.yml)
 [![pub package](https://img.shields.io/pub/v/flutter_sync.svg)](https://pub.dev/packages/flutter_sync)
 [![Dart 3.3+](https://img.shields.io/badge/Dart-3.3+-0175C2.svg)](https://dart.dev)
 [![Flutter 3.19+](https://img.shields.io/badge/Flutter-3.19+-02569B.svg)](https://flutter.dev)
+
+</p>
 
 > Work in progress — this README will grow phase by phase as the package is built. The complete blueprint lives in `SUPERPROMPT_FLUTTERSYNC.md`; operating guidance is in `CLAUDE.md` and `AGENTS.md`.
 
