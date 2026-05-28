@@ -47,7 +47,7 @@ The package is delivered across 18 numbered phases. Each phase lives on its own 
 - [x] Phase 5 — Persistent outbox with exponential-backoff retry
 - [x] Phase 6 — Local store (Drift and Hive implementations)
 - [x] Phase 7 — Connectivity and bandwidth awareness
-- [ ] Phase 8 — Scheduler and per-platform background sync
+- [x] Phase 8 — Scheduler and per-platform background sync
 - [ ] Phase 9 — Backend adapters (Supabase, Firebase, REST, GraphQL, gRPC, Mock)
 - [ ] Phase 10 — AES-256-GCM encryption at rest with Argon2id
 - [ ] Phase 11 — Audit trail and structured logging
@@ -166,6 +166,19 @@ Every write that the engine reports as successful is durably stored in the **out
 ## Connectivity and bandwidth awareness
 
 FlutterSync inspects network conditions before pushing data. The `ConnectivityObserver` wraps `connectivity_plus` and emits a debounced stream of `NetworkState` values (`none`, `wifi`, `mobile`, `ethernet`, `vpn`, `other`); the `BandwidthMonitor` keeps a rolling window of measured push throughput per state and recommends an adaptive batch size so each push completes within a target duration. Wi-Fi and Ethernet get larger batches; mobile data uses smaller batches to keep cost and latency in check; offline returns the minimum batch.
+
+## Background sync (per platform)
+
+`SyncScheduler` owns both the foreground timer (via `ForegroundSync`) and the OS-level background task (selected by `createBackgroundSync`). The concrete background implementations live under `lib/src/scheduler/platform/`:
+
+| Platform | Mechanism | Default interval |
+|---|---|---|
+| Android | `workmanager` `PeriodicWorkRequest` | 15 min |
+| iOS | `background_fetch` + `BGTaskScheduler` | 15 min |
+| macOS / Windows / Linux | In-process `Timer.periodic` | 5 min |
+| Web | `ServiceWorker` `SyncManager` bridge | 5 min |
+
+Host apps must add the platform manifest entries listed in `doc/background_sync.md` (Phase 17) and register the background callback once in `main()`.
 
 ## Documentation
 
