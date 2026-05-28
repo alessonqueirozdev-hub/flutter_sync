@@ -47,7 +47,10 @@ class _ConflictLogViewerState extends State<ConflictLogViewer> {
 
   @override
   void dispose() {
-    _streamSub?.cancel();
+    final StreamSubscription<AuditEntry>? sub = _streamSub;
+    if (sub != null) {
+      unawaited(sub.cancel());
+    }
     super.dispose();
   }
 
