@@ -30,6 +30,7 @@ import '../store/sync_store.dart';
 import 'delta/delta_merger.dart';
 import 'hlc/hlc_clock.dart';
 import 'hlc/hlc_node.dart';
+import 'hlc/hlc_timestamp.dart';
 import 'optimistic/optimistic_update_manager.dart';
 
 /// Central orchestrator binding together every FlutterSync subsystem.
