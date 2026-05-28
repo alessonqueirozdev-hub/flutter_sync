@@ -52,7 +52,7 @@ The package is delivered across 18 numbered phases. Each phase lives on its own 
 - [x] Phase 10 — AES-256-GCM encryption at rest with Argon2id
 - [x] Phase 11 — Audit trail and structured logging
 - [x] Phase 12 — Schema migrations
-- [ ] Phase 13 — Core engine and public API
+- [x] Phase 13 — Core engine and public API
 - [ ] Phase 14 — In-app DevTools overlay
 - [ ] Phase 15 — Tests (unit, behavioral, integration, property-based)
 - [ ] Phase 16 — Example application (Todos and Notes)
@@ -202,6 +202,40 @@ Reserved fields (`id`, `collection`, `hlc`, `created_at`, `updated_at`, `is_dele
 ## Schema migrations
 
 Local-store schema changes (renamed columns, denormalized fields, new indexes) are managed by versioned `SchemaMigration` objects passed to `FlutterSync.configure`. The `MigrationRunner` sorts them by version, asserts there are no gaps or duplicates, and applies every migration whose version is above the recorded one — wrapped in a transaction so a half-applied schema can never be observed by readers. Optional `down` callbacks support rollback for sites with strict release-train policies.
+
+## Public API
+
+```dart
+final flutterSync = await FlutterSync.configure(
+  adapter: SupabaseSyncAdapter(client: supabase),
+  store: DriftSyncStore(database: db),
+  conflictResolver: const LWWResolver(),
+  encryptionConfig: const EncryptionConfig.fromPassword('user-secret'),
+  schedulerConfig: const SyncSchedulerConfig(
+    foregroundInterval: Duration(seconds: 30),
+    backgroundInterval: Duration(minutes: 15),
+  ),
+);
+
+final todos = flutterSync.repository<Todo>(
+  'todos',
+  serializer: SyncModelSerializer(
+    fromJson: Todo.fromJson,
+    toJson: (t) => t.toJson(),
+  ),
+  partialSyncFilter: SyncFilter.where('user_id', isEqualTo: currentUser.id),
+);
+
+await todos.save(Todo(id: uuid.v4(), title: 'Learn FlutterSync', completed: false));
+final list = await todos.findAll();
+todos.watch().listen((items) => print('${items.length} todos'));
+
+flutterSync.status.listen(handleStatus);
+await flutterSync.syncNow();
+await flutterSync.dispose();
+```
+
+The full surface is [`FlutterSync`](lib/src/core/flutter_sync.dart), [`SyncRepository`](lib/src/core/sync_repository.dart), and the model/adapter/store interfaces exported from `package:flutter_sync/flutter_sync.dart`. Anything inside `lib/src/` that the barrel does not re-export is internal and may change without notice.
 
 ## Documentation
 
