@@ -46,8 +46,16 @@ linter:
     avoid_unused_constructor_parameters: true
     avoid_void_async: true
     cancel_subscriptions: true
-    close_sinks: true
-    comment_references: true
+    # `close_sinks` is disabled: the lint cannot follow StreamControllers
+    # stored in a Map<String, StreamController<T>> and closed in `dispose()`
+    # via iteration. Every owner closes its controllers; revisit when the
+    # store layer is refactored to a more lint-friendly ownership pattern.
+    close_sinks: false
+    # `comment_references` is disabled: many adapter doc comments reference
+    # symbols from peer files that are not imported (and shouldn't be —
+    # they would create cyclic imports). The references read clearly in
+    # generated DartDoc; the lint produces noise without value here.
+    comment_references: false
     constant_identifier_names: true
     directives_ordering: true
     discarded_futures: true
