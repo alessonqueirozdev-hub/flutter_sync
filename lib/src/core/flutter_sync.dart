@@ -148,15 +148,17 @@ class FlutterSync {
     ConflictResolver? conflictResolver,
     SyncFilter? partialSyncFilter,
     EncryptionConfig? collectionEncryption,
-  }) =>
-      SyncRepository<T>(
-        collection: collection,
-        engine: _engine,
-        serializer: serializer,
-        partialSyncFilter: partialSyncFilter,
-        collectionEncryption: collectionEncryption,
-        conflictResolver: conflictResolver,
-      );
+  }) {
+    _engine.registerCollection(collection);
+    return SyncRepository<T>(
+      collection: collection,
+      engine: _engine,
+      serializer: serializer,
+      partialSyncFilter: partialSyncFilter,
+      collectionEncryption: collectionEncryption,
+      conflictResolver: conflictResolver,
+    );
+  }
 
   /// Broadcast stream of [SyncStatus] updates.
   Stream<SyncStatus> get status => _engine.status;
