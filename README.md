@@ -53,7 +53,7 @@ The package is delivered across 18 numbered phases. Each phase lives on its own 
 - [x] Phase 11 — Audit trail and structured logging
 - [x] Phase 12 — Schema migrations
 - [x] Phase 13 — Core engine and public API
-- [ ] Phase 14 — In-app DevTools overlay
+- [x] Phase 14 — In-app DevTools overlay
 - [ ] Phase 15 — Tests (unit, behavioral, integration, property-based)
 - [ ] Phase 16 — Example application (Todos and Notes)
 - [ ] Phase 17 — Documentation
@@ -236,6 +236,30 @@ await flutterSync.dispose();
 ```
 
 The full surface is [`FlutterSync`](lib/src/core/flutter_sync.dart), [`SyncRepository`](lib/src/core/sync_repository.dart), and the model/adapter/store interfaces exported from `package:flutter_sync/flutter_sync.dart`. Anything inside `lib/src/` that the barrel does not re-export is internal and may change without notice.
+
+## DevTools overlay
+
+Wrap your top-level widget with `FlutterSyncDevTools` (typically guarded by `kDebugMode`) to get a floating action button that opens a tabbed inspector at any time:
+
+```dart
+runApp(
+  kDebugMode
+    ? FlutterSyncDevTools(
+        flutterSync: flutterSync,
+        auditTrail: auditTrail,
+        child: const MyApp(),
+      )
+    : const MyApp(),
+);
+```
+
+The drawer surfaces:
+
+- **Status** — current `SyncStatus` (idle, syncing, synced, offline, paused, error) with timestamps.
+- **Outbox** — per-collection pending/failed counts plus a one-tap "Flush now" button.
+- **Conflicts** — recent conflict resolutions with a JSON export.
+
+Additional tabs for HLC and Network will surface in a later patch.
 
 ## Documentation
 
